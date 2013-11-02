@@ -1,0 +1,1 @@
+cmd /k mapcnvZXB.exe mapa.map 4 4 16 12
