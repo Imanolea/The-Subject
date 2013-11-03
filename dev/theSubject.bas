@@ -62,11 +62,11 @@ while(NOT isOver)
 	'' Borrar */
 
 	' Esperar
-    asm
+	asm
 		halt
 		halt
 		halt
-    end asm
+	end asm
 
 wend
 
@@ -117,10 +117,10 @@ end sub
 sub actualizarJugador ()
 
 	' Mover el sprite
-    fsp21MoveSprite (0, mapoffsetx + pX, mapoffsety + pY)
-
-    ' Actualizar Sprites
-    fsp21UpdateSprites ()
+	fsp21MoveSprite (0, mapoffsetx + pX, mapoffsety + pY)
+	
+	' Actualizar Sprites
+	fsp21UpdateSprites ()
 end sub
 
 sub initScreen ()
@@ -131,10 +131,10 @@ sub initScreen ()
 	
 	' Configurar sprite
 	
-    fsp21ColourSprite(0, 0, 0, 0, 0)
-    fsp21MoveSprite(0, 12, 12)
-    fsp21DuplicateCoordinatesSprite(0)
-    fsp21ActivateSprite(0)
+	fsp21ColourSprite(0, 0, 0, 0, 0)
+	fsp21MoveSprite(0, 12, 12)
+	fsp21DuplicateCoordinatesSprite(0)
+	fsp21ActivateSprite(0)
 	
 	fsp21InitSprites()
 
