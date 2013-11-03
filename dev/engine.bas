@@ -5,6 +5,7 @@
 '' Constantes
 
 Const TILESIZE As uByte = 2
+Const PLAYERSIZE as uByte = 2
 Const MAPWIDTH As uByte = 4
 Const MAPHEIGHT As uByte = 4
 
@@ -18,8 +19,95 @@ Dim mapoffsety as uByte = 0
 ' Pantalla
 Dim nPant as uByte
 
+' Coordenadas
+
+Dim pX, pY, pFrame, pAction as Byte
+
 
 '' Subs
+
+' Control
+
+sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, action as uByte)
+
+	
+
+	if up  or down or left or right
+		if not ((not up and not down and left and right) or (up and down and not left and not right))
+		
+			if up
+				pY = pY - 1
+			end if
+			
+			if down
+				pY = pY + 1
+			end if
+			
+			if left
+				pX = pX - 1
+			end if
+			
+			if right
+				pX = pX + 1
+			end if
+			
+			doFrame()
+		end if
+	elseif action = 1
+		playerAction()
+		pFrame = 5
+		pAction = 1
+	else
+		pFrame = 0
+	end if
+	
+	ajustarPos()
+	
+end sub
+
+' Avanzar frame del jugador
+
+Sub doFrame () 
+   pFrame = pFrame + 1: if pFrame > 3 pFrame = 0: end if
+End Sub
+
+' Acción del jugador
+
+sub playerAction ()
+end sub
+
+' Frame de la animacion
+
+sub animacion ()
+    if pFrame = 0  or pFrame = 2  
+        fsp21SetGfxSprite (0, 0, 1, 2, 3)  
+    elseif pFrame = 1  
+        fsp21SetGfxSprite (0, 8, 9, 10, 11)
+    elseif pFrame = 3  
+	    fsp21SetGfxSprite (0, 16, 17, 18, 19)
+    elseif pFrame = 5
+		fsp21SetGfxSprite (0, 24, 25, 26, 27)
+		pFrame = 0
+	end if
+end sub
+
+' Impide que el personaje salga de la pantalla
+
+sub ajustarPos ()
+	if pX < mapoffsetx
+		pX = mapoffsetx
+	elseif pX > mapoffsetx + mapscreenwidth * TILESIZE - PLAYERSIZE
+		pX = mapoffsetx + mapscreenwidth * TILESIZE - PLAYERSIZE
+	end if
+	
+	if pY < mapoffsety
+		pY = mapoffsety
+	elseif pY > mapoffsety + mapscreenheight * TILESIZE - PLAYERSIZE
+		pY = mapoffsety + mapscreenheight * TILESIZE - PLAYERSIZE
+	end if
+end sub
+
+' Pintado
 
 Sub pintaTile (x as uByte, y as uInteger, n as uByte)
     Dim addr as uInteger
