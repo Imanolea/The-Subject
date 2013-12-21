@@ -30,16 +30,16 @@ fsp21SetGfxAddress (@spriteset (0))
 isOver = 0
 nPant = 0
 
-pX = 12
+pX = 20
 pY = 12
 
 initScreen()
 
 while(NOT isOver)
 
-	''poke uInteger 23606, 15616 - 256
+	'' poke uInteger 23606, 15616 - 256
 	'' Debug
-	''poke uInteger 23606, @charsetGraficos (0) - 256
+	'' poke uInteger 23606, @charsetGraficos (0) - 256
 	
 	controlProccess()
 	
@@ -122,14 +122,16 @@ end sub
 
 sub initScreen ()
 
-	' Pintar pantalla
+	mapoffsetx = mapabehaviour(nPant, 0)
+	mapoffsety = mapabehaviour(nPant, 1)
 	
-	pintaMapa(mapoffsetx, mapoffsety, nPant)
+	' Pintar pantalla
+	pintaMapa(0, 0, nPant)
 	
 	' Configurar sprite
 	
 	fsp21ColourSprite(0, 0, 0, 0, 0)
-	fsp21MoveSprite(0, 12, 12)
+	fsp21MoveSprite(0, pX, pY)
 	fsp21DuplicateCoordinatesSprite(0)
 	fsp21ActivateSprite(0)
 	

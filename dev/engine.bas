@@ -96,16 +96,16 @@ end sub
 ' Impide que el personaje salga de la pantalla
 
 sub ajustarPos ()
-	if pX < mapoffsetx
-		pX = mapoffsetx
-	elseif pX > mapoffsetx + mapscreenwidth * TILESIZE - PLAYERSIZE
-		pX = mapoffsetx + mapscreenwidth * TILESIZE - PLAYERSIZE
+	if pX < 0
+		pX = 0
+	elseif pX > mapscreenwidth * TILESIZE - PLAYERSIZE
+		pX = mapscreenwidth * TILESIZE - PLAYERSIZE
 	end if
 	
-	if pY < mapoffsety
-		pY = mapoffsety
-	elseif pY > mapoffsety + mapscreenheight * TILESIZE - PLAYERSIZE
-		pY = mapoffsety + mapscreenheight * TILESIZE - PLAYERSIZE
+	if pY < 0
+		pY = 0
+	elseif pY > mapscreenheight * TILESIZE - PLAYERSIZE
+		pY = mapscreenheight * TILESIZE - PLAYERSIZE
 	end if
 end sub
 
@@ -113,12 +113,37 @@ end sub
 ' Toma como parámetro el desplazamiento
 
 sub checkPosition(despX as uByte, despY as uByte, n as uByte)
-	if (getCharBehaviourAt(pX, pY, n) >= 9 or _
-		getCharBehaviourAt(pX + 1, pY, n) >= 9 or _
-		getCharBehaviourAt(pX, pY + 1, n) >= 9 or _
-		getCharBehaviourAt(pX + 1, pY + 1, n) >= 9)
+
+	' Colisión con algo sólido
+	
+	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) >= 9 or _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) >= 9 or _
+		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) >= 9 or _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) >= 9)
 		pX = pX - despX
 		pY = pY - despY
+	end if
+	
+	' Colisión con una puerta
+	
+	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 2 and _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 2 and _
+		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 2 and _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 2)
+		if (pX > pY and pY <= (mapscreenheight - mapoffsety) * 2 / 3)
+			nPant = nPant - MAPWIDTH
+			pY = (mapscreenheight - mapoffsety) * 2 - PLAYERSIZE - 1
+		elseif (pX > pY and pX >= (mapscreenwidth - mapoffsetx) * 2 / 3 * 2)
+			nPant = nPant + 1
+			pX = 1
+		elseif (pY > pX and pY >= (mapscreenheight - mapoffsety) * 2 / 3 * 2)
+			nPant = nPant + MAPWIDTH
+			pY = 1
+		elseif (pY > pX and pX <= (mapscreenwidth - mapoffsetx) * 2 / 3)
+			nPant = nPant - 1
+			pX = (mapscreenwidth - mapoffsetx) * 2 - PLAYERSIZE - 1
+		end if
+		initScreen()
 	end if
 end sub
 
