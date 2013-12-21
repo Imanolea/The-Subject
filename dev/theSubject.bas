@@ -47,19 +47,16 @@ while(NOT isOver)
 	
 	animacion()
 	
-	''/* Borrar
-	' Si pulsamos P, dibujamos la siguiente pantalla en el mapa
-	' Si pulsamos O, dibujamos la pantalla anterior del mapa
+	' Si pulsamos N, dibujamos la anterior pantalla del mapa
+	' Si pulsamos M, dibujamos la siguiente pantalla del mapa
 	
-	'if  (in (57342) bAnd 1) = 0 and nPant < 15
-	'	nPant = nPant + 1
-	'	initScreen()
-	'elseif (in (57342) bAnd 2) = 0 and nPant > 0
-	'	nPant = nPant - 1
-	'	initScreen()
-	'end if
-
-	'' Borrar */
+	if  (in (32766) bAnd 8) = 0 and nPant > 0
+		nPant = nPant - 1
+		initScreen()
+	elseif (in (32766) bAnd 4) = 0 and nPant < 15
+		nPant = nPant + 1
+		initScreen()
+	end if
 
 	' Esperar
 	asm

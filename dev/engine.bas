@@ -35,18 +35,22 @@ sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, act
 		
 			if up
 				pY = pY - 1
+				checkPosition(0, -1, nPant)
 			end if
 			
 			if down
 				pY = pY + 1
+				checkPosition(0, 1, nPant)
 			end if
 			
 			if left
 				pX = pX - 1
+				checkPosition(-1, 0, nPant)
 			end if
 			
 			if right
 				pX = pX + 1
+				checkPosition(1, 0, nPant)
 			end if
 			
 			doFrame()
@@ -105,9 +109,23 @@ sub ajustarPos ()
 	end if
 end sub
 
+' Realiza la interacción correspondiente con la posición del jugador
+' Toma como parámetro el desplazamiento
+
+sub checkPosition(despX as uByte, despY as uByte, n as uByte)
+	if (getCharBehaviourAt(pX, pY, n) >= 9 or _
+		getCharBehaviourAt(pX + 1, pY, n) >= 9 or _
+		getCharBehaviourAt(pX, pY + 1, n) >= 9 or _
+		getCharBehaviourAt(pX + 1, pY + 1, n) >= 9)
+		pX = pX - despX
+		pY = pY - despY
+	end if
+end sub
+
+
 ' Pintado
 
-Sub pintaTile (x as uByte, y as uInteger, n as uByte)
+sub pintaTile (x as uByte, y as uInteger, n as uByte)
 	Dim addr as uInteger
 	addr = 22528 + x + (y << 5)
 	Print paper 8; ink 8; _
@@ -115,21 +133,21 @@ Sub pintaTile (x as uByte, y as uInteger, n as uByte)
 	At y + 1, x; Chr (tileset (n, 5)); Chr (tileset (n, 7));
 	Poke addr, tileset (n, 0): Poke addr + 1, tileset (n, 2)
 	Poke addr + 32, tileset (n, 4): Poke addr + 33, tileset (n, 6)
-End Sub
+end Sub
 
-Sub pintaMapa (x as uByte, y as uByte, n as uInteger)
+sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	Dim idx as uInteger
 	Dim i as uByte
 	Dim screenSize as uByte
 	Dim mapscreenwidthInChars as uByte
 	Dim xx, yy as uByte
-	' Size in bytes:
+	' Tamaño en bytes
 	screenSize = mapscreenwidth * mapscreenheight
 	mapScreenWidthInChars = TILESIZE * mapscreenwidth
-	' Read from here:
+	' Índice desde el que lee
 	idx = n * screenSize
 
-	' Loop
+	' Bucle
 	xx = x
 	yy = y
 	
@@ -144,3 +162,21 @@ Sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	next i
 
 end sub
+
+' Devuelve el valor del tile en x, y de la pantalla n
+' x, y = coordenadas de tile
+Function getTileAt (x as uByte, y as uByte, n as uInteger) as uByte
+	return mapa (n * mapscreenwidth * mapscreenheight + y * mapscreenwidth + x)	
+End Function
+
+' Devuelve el comportamiento del tile en x, y de la pantalla n
+' x, y = coordenadas de tile
+Function getTileBehaviourAt (x as uByte, y as uByte, n as uInteger) as uByte
+	return tileBehaviour (getTileAt (x, y, n))
+End Function
+
+' Devuelve el comportamiento del caracter en x, y de la pantalla n
+' x, y = coordenadas de caracter
+Function getCharBehaviourAt (x as uByte, y as uByte, n as uInteger) as uByte
+   return getTileBehaviourAt (x >> 1, y >> 1, n)
+End Function

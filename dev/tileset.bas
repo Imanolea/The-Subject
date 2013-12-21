@@ -2,6 +2,19 @@
 ''
 '' Tileset
 
+' Comportamientos de los tiles
+' < 9 = traspasable
+' >= 9 = no traspasable
+' 1 = interruptor
+' 2 = puerta
+' 3 = hielo 
+
+dim tileBehaviour (63) as uByte => { _
+0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, _
+9, 9, 2, 2, 2, 2, 1, 2, 9, 0, 0, 0, 0, 0, 0, 0, _
+0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, _
+3, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
 dim tileset (63,7) as uByte => { _
 {0, 32, 0, 32, 0, 32, 0, 32}, _
 {112, 33, 112, 34, 112, 34, 112, 33}, _
