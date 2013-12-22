@@ -11,6 +11,7 @@
 #include once "tileset.bas"
 #include once "mapa.bas"
 #include once "engine.bas"
+#include once "soundEffects.bas"
 
 '' Constantes
 
@@ -57,6 +58,10 @@ while(NOT isOver)
 		nPant = nPant + 1
 		initScreen()
 	end if
+	
+	if  (in (32766) bAnd 2) = 0
+		initScreen()
+	end if	
 
 	' Esperar
 	asm

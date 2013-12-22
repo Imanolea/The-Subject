@@ -112,7 +112,7 @@ end sub
 ' Realiza la interacción correspondiente con la posición del jugador
 ' Toma como parámetro el desplazamiento
 
-sub checkPosition(despX as uByte, despY as uByte, n as uByte)
+sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 
 	' Colisión con algo sólido
 	
@@ -145,8 +145,140 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 		end if
 		initScreen()
 	end if
+	
+	' Cerrar las puertas
+	
+	if (mapabehaviour(n, 2) = 1)
+		if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) < 2 and _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) < 2 and _
+		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) < 2 and _
+		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) < 2)
+			fsp21MoveSprite(0, 0, 0)
+			fsp21MinUpdateSprites ()
+			if (mapabehaviour(n, 3) = 1)
+				doorUp(n, 1)
+			elseif (mapabehaviour(n, 3) = 2)
+				doorRight(n, 1)
+			elseif (mapabehaviour(n, 3) = 3)
+				doorDown(n, 1)
+			elseif (mapabehaviour(n, 3) = 4)
+				doorLeft(n, 1)
+			end if
+			mapabehaviour(n, 2) = 0
+		end if
+	end if
+	
+	' Interruptor pulsado
+	
+	dim x, y as uInteger
+	
+	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 1 and _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 1 and _
+	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 1 and _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1)
+		x = pX
+		y = pY
+		fsp21MoveSprite(0, 0, 0)
+		fsp21MinUpdateSprites ()
+		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
+		pintaTile(mapoffsetx + pX, pY, 50)
+		makeSound(5)
+	end if
+	
+	' Interruptor soltado
+	
+	if ((getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 4 or _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 or _
+	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 or _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4) _
+	and not (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 4 and _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 and _
+	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 and _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4))
+		x = pX - despX
+		y = pY - despY
+		fsp21MoveSprite(0, 0, 0)
+		fsp21MinUpdateSprites ()
+		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
+		pintaTile(mapoffsetx + x, y, 22)
+		makeSound(6)
+	end if
+	
 end sub
 
+' Abrir/Cerrar puertas
+
+sub doorUp(n as uInteger, close as uByte)
+    makeSound (4)
+	dim doorTile0, doorTile1 as uByte
+	
+	if (close)
+		doorTile0 = 10
+		doorTile1 = 11
+	else
+		doorTile0 = 18
+		doorTile1 = 19
+	end if
+	
+    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 0) * mapscreenwidth + mapoffsetx / 2 + 5) = doorTile0
+	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 0) * mapscreenwidth + mapoffsetx / 2 + 6) = doorTile1
+	pintaTile(mapoffsetx + 5 * 2, mapoffsety + 0 * 2, doorTile0)
+	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 0 * 2, doorTile1)
+end sub
+
+sub doorRight(n as uInteger, close as uByte)
+    makeSound (4)
+	dim doorTile0, doorTile1 as uByte
+	
+	if (close)
+		doorTile0 = 16
+		doorTile1 = 17
+	else
+		doorTile0 = 46
+		doorTile1 = 47
+	end if
+	
+    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 5) * mapscreenwidth + mapoffsetx / 2 + 11) = doorTile0
+	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 6) * mapscreenwidth + mapoffsetx / 2 + 11) = doorTile1	
+	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 5 * 2, doorTile0)
+	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 6 * 2, doorTile1)
+end sub
+
+sub doorDown(n as uInteger, close as uByte)
+    makeSound (4)
+	dim doorTile0, doorTile1 as uByte
+	
+	if (close)
+		doorTile0 = 14
+		doorTile1 = 15
+	else
+		doorTile0 = 23
+		doorTile1 = 45
+	end if
+	
+    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 11) * mapscreenwidth + mapoffsetx / 2 + 5) = doorTile0
+	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 11) * mapscreenwidth + mapoffsetx / 2 + 6) = doorTile1
+	pintaTile(mapoffsetx + 5 * 2, mapoffsety + 11 * 2, doorTile0)
+	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 11 * 2, doorTile1)
+end sub
+
+sub doorLeft(n as uInteger, close as uByte)
+    makeSound (4)
+	dim doorTile0, doorTile1 as uByte
+	
+	if (close)
+		doorTile0 = 12
+		doorTile1 = 13
+	else
+		doorTile0 = 20
+		doorTile1 = 21
+	end if
+	
+    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 5) * mapscreenwidth + mapoffsetx / 2 + 0) = doorTile0
+	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 6) * mapscreenwidth + mapoffsetx / 2 + 0) = doorTile1	
+	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 5 * 2, doorTile0)
+	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 6 * 2, doorTile1)
+end sub
 
 ' Pintado
 
