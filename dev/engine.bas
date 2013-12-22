@@ -178,6 +178,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1)
 		x = pX
 		y = pY
+		mapabehaviour(n, 4) = mapabehaviour(n, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
 		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
@@ -197,6 +198,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4))
 		x = pX - despX
 		y = pY - despY
+		mapabehaviour(n, 4) = mapabehaviour(n, 4) - 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
 		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
