@@ -10,7 +10,9 @@
 #include once "charsetTextos.bas"
 #include once "tileset.bas"
 #include once "mapa.bas"
+#include once "maze.bas"
 #include once "engine.bas"
+#include once "chess.bas"
 #include once "soundEffects.bas"
 
 '' Constantes

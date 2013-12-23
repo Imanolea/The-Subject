@@ -2,10 +2,6 @@
 ''
 '' Rutinas del juego
 
-'' includes
-
-#include once "maze.bas"
-
 '' Constantes
 
 Const TILESIZE As uByte = 2
@@ -14,6 +10,7 @@ Const MAPWIDTH As uByte = 4
 Const MAPHEIGHT As uByte = 4
 
 const maze as uByte = 9
+const chess as uByte = 10
 
 '' Variables
 
@@ -82,6 +79,9 @@ End Sub
 ' Acción del jugador
 
 sub playerAction ()
+	if (nPant = chess and mapabehaviour(chess, 4) = 0)
+		colocaPieza(nPant)
+	end if
 end sub
 
 ' Frame de la animacion
@@ -232,7 +232,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
 		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
-		pintaTile(mapoffsetx + pX, pY, 50)
+		pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
 		makeSound(5)
 	end if
 	
@@ -372,6 +372,8 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	
 	if (n = maze)
 		salida = pintaNumeros(mapoffsetx, mapoffsety)
+	elseif (n = chess)
+		pintaNumR()
 	end if
 
 end sub

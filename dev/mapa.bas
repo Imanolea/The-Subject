@@ -1,4 +1,4 @@
-' Mapa.bas 
+' mapa.bas 
 ' Generado por MapCnvZXB
 ' Copyleft 2010 The Mojon Twins
 
