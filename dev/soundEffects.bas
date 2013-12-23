@@ -9,6 +9,7 @@ Const SOUNDGRAB as uByte = 3
 Const SOUNDDOOR as uByte = 4
 Const SOUNDSWITCHON as uByte = 5
 Const SOUNDSWITCHOFF as uByte = 6
+const SOUNDBUTTON as uByte = 7
 
 
 Sub makeSound (nSound as uByte)
@@ -179,6 +180,7 @@ soundEffectsData:
 	defw soundEffectsData_sfx4
 	defw soundEffectsData_sfx5
 	defw soundEffectsData_sfx6
+	defw soundEffectsData_sfx7
 
 soundEffectsData_sfx0:
 	defb 1 ;tone
@@ -226,6 +228,13 @@ soundEffectsData_sfx6:
 	defb 2 ;noise
 	defw 2,2000,32776
 	defb 0	
+	
+soundEffectsData_sfx7:
+	defb 2 ;noise
+	defw 1,1000,4
+	defb 1 ;tone
+	defw 1,1000,2000,0,128
+	defb 0
 	
 End Asm
 End Sub

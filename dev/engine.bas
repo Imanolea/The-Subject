@@ -11,6 +11,8 @@ Const MAPHEIGHT As uByte = 4
 
 const maze as uByte = 9
 const chess as uByte = 10
+const piano as uByte = 13
+const inicio as uByte = 14
 
 '' Variables
 
@@ -79,6 +81,21 @@ End Sub
 ' Acción del jugador
 
 sub playerAction ()
+
+	' Pulsar botón
+	
+	if (pY = 2 and (pX = 14 or pX = 15))
+		if (nPant = inicio and mapabehaviour(nPant, 4) = 0)
+			makeSound(7)
+			Dim addr as uInteger
+			addr = 22528 + 19 + 0
+			poke addr, 96
+			mapabehaviour(nPant, 4) = 1
+		elseif (nPant = piano)
+			
+		end if
+	end if
+
 	if (nPant = chess and mapabehaviour(chess, 4) = 0)
 		colocaPieza(nPant)
 	end if
@@ -146,6 +163,8 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 				else
 					laberinto = 0
 				end if	
+			elseif (n = inicio)
+				nPant = maze
 			else
 				nPant = nPant - MAPWIDTH
 			end if
@@ -234,6 +253,12 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
 		pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
 		makeSound(5)
+		
+		if (n = inicio and mapabehaviour(n, 4) = 2)
+			mapabehaviour(n, 4) = 3
+			doorUp(n, 0)
+			makeSound(1)
+		end if
 	end if
 	
 	' Interruptor soltado

@@ -118,14 +118,15 @@ sub comprobarPos (n as uByte)
 	and (posP(5)+posP(4))<>(posP(13)+posP(12)) and (posP(5)+posP(4))<>(posP(15)+posP(14)) and (posP(7)+posP(6))<>(posP(9)+posP(8)) and (posP(7)+posP(6))<>(posP(11)+posP(10)) _
 	and (posP(9)+posP(8))<>(posP(13)+posP(12)) and (posP(9)+posP(8))<>(posP(15)+posP(14)) and (posP(11)+posP(10))<>(posP(13)+posP(12)) and (posP(11)+posP(10))<>(posP(15)+posP(14)) _
 	and (posP(13)+posP(12))<>(posP(15)+posP(14))) _
-		addr = 22528 + 16 + 1 
+		addr = 22528 + 17 + 0 
         Poke addr, 96
 		if (numR = 0 and mapabehaviour(n, 4) = 0)
 		    doorLeft(n, 0)
 			mapabehaviour(n, 4) = 1
+			makeSound(1)
 		end if	
 	else
-		addr = 22528 + 16 + 1 
+		addr = 22528 + 17 + 0 
         Poke addr, 80
 	end if
 end sub

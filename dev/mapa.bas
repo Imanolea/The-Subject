@@ -6,7 +6,7 @@
 ' 0 = valor de mapoffsetx 
 ' 1 = valor de mapoffsety
 ' 2 = cierre automático de puertas (0 = no, 1 = sí)
-' 3 = puerta se salida (1 = N, 2 = O, 3 = S, 4 = E)
+' 3 = puerta de salida (1 = N, 2 = O, 3 = S, 4 = E)
 ' 4 = número interruptores pulsados
 
 dim mapabehaviour(15, 4) as uByte => { _
@@ -24,7 +24,7 @@ dim mapabehaviour(15, 4) as uByte => { _
 {0, 0, 0, 0, 0}, _
 {0, 0, 0, 0, 0}, _
 {4, 0, 1, 1, 0}, _
-{0, 0, 0, 1, 0}, _
+{4, 0, 0, 0, 0}, _
 {0, 0, 0, 0, 0}}
  
 Dim mapa (3071) As uByte => { _
