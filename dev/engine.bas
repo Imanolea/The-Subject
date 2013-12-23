@@ -2,12 +2,18 @@
 ''
 '' Rutinas del juego
 
+'' includes
+
+#include once "maze.bas"
+
 '' Constantes
 
 Const TILESIZE As uByte = 2
 Const PLAYERSIZE as uByte = 2
 Const MAPWIDTH As uByte = 4
 Const MAPHEIGHT As uByte = 4
+
+const maze as uByte = 9
 
 '' Variables
 
@@ -131,16 +137,60 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 2 and _
 		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 2)
 		if (pX > pY and pY <= (mapscreenheight - mapoffsety) * 2 / 3)
-			nPant = nPant - MAPWIDTH
+			if (n = maze)
+				if (salida = 1)
+					laberinto = laberinto + 1
+					if (laberinto = 5)
+						nPant = nPant - MAPWIDTH
+					end if	
+				else
+					laberinto = 0
+				end if	
+			else
+				nPant = nPant - MAPWIDTH
+			end if
 			pY = (mapscreenheight - mapoffsety) * 2 - PLAYERSIZE - 1
 		elseif (pX > pY and pX >= (mapscreenwidth - mapoffsetx) * 2 / 3 * 2)
-			nPant = nPant + 1
+			if (n = maze)
+				if (salida = 2)
+					laberinto = laberinto + 1
+					if (laberinto = 5)
+						nPant = nPant + 1
+					end if	
+				else
+					laberinto = 0
+				end if
+			else
+				nPant = nPant + 1
+			end if
 			pX = 1
 		elseif (pY > pX and pY >= (mapscreenheight - mapoffsety) * 2 / 3 * 2)
-			nPant = nPant + MAPWIDTH
+			if (n = maze)
+				if (salida = 3)		
+					laberinto = laberinto + 1
+					if (laberinto = 5)
+						nPant = nPant + MAPWIDTH
+					end if	
+				else
+					laberinto = 0
+				end if	
+			else
+				nPant = nPant + MAPWIDTH
+			end if
 			pY = 1
 		elseif (pY > pX and pX <= (mapscreenwidth - mapoffsetx) * 2 / 3)
-			nPant = nPant - 1
+			if (n = maze)
+				if (salida = 4)
+					laberinto = laberinto + 1
+					if (laberinto = 5)
+						nPant = nPant - 1
+					end if	
+				else
+					laberinto = 0
+				end if
+			else
+				nPant = nPant - 1
+			end if
 			pX = (mapscreenwidth - mapoffsetx) * 2 - PLAYERSIZE - 1
 		end if
 		initScreen()
@@ -319,6 +369,10 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 		end If
 		idx = idx + 1
 	next i
+	
+	if (n = maze)
+		salida = pintaNumeros(mapoffsetx, mapoffsety)
+	end if
 
 end sub
 
