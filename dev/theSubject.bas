@@ -12,7 +12,9 @@
 #include once "mapa.bas"
 #include once "maze.bas"
 #include once "engine.bas"
+#include once "piano.bas"
 #include once "chess.bas"
+#include once "music.bas"
 #include once "soundEffects.bas"
 
 '' Constantes

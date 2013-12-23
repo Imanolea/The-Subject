@@ -91,12 +91,12 @@ sub playerAction ()
 			addr = 22528 + 19 + 0
 			poke addr, 96
 			mapabehaviour(nPant, 4) = 1
-		elseif (nPant = piano)
-			
+		elseif (nPant = piano and mapabehaviour(nPant, 4) <> 24)
+			pianoButton()
 		end if
 	end if
 
-	if (nPant = chess and mapabehaviour(chess, 4) = 0)
+	if (nPant = chess and mapabehaviour(nPant, 4) = 0)
 		colocaPieza(nPant)
 	end if
 end sub
@@ -258,6 +258,8 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			mapabehaviour(n, 4) = 3
 			doorUp(n, 0)
 			makeSound(1)
+			addr = 22528 + 19 + 0
+			poke addr, 80
 		end if
 	end if
 	
@@ -279,6 +281,10 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
 		pintaTile(mapoffsetx + x, y, 22)
 		makeSound(6)
+	end if
+	
+	if (n = piano)
+		pianoPos()
 	end if
 	
 end sub
