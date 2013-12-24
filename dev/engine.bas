@@ -9,6 +9,7 @@ Const PLAYERSIZE as uByte = 2
 Const MAPWIDTH As uByte = 4
 Const MAPHEIGHT As uByte = 4
 
+const ice as uByte = 0
 const maze as uByte = 9
 const chess as uByte = 10
 const piano as uByte = 13
@@ -28,6 +29,10 @@ Dim nPant as uByte
 
 Dim pX, pY, pFrame, pAction as Byte
 
+' Dirección
+
+dim dir as Byte
+
 
 '' Subs
 
@@ -37,28 +42,41 @@ sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, act
 
 	if up  or down or left or right
 		if not ((not up and not down and left and right) or (up and down and not left and not right))
-		
-			if up
-				pY = pY - 1
-				checkPosition(0, -1, nPant)
-			end if
+			if (not(nPant = ice and dir))
+				if up
+					if (nPant <> ice)
+						pY = pY - 1
+						checkPosition(0, -1, nPant)
+					end if	
+					dir = 1
+				end if
+				
+				if down
+					if (nPant <> ice)
+						pY = pY + 1
+						checkPosition(0, 1, nPant)
+					end if
+					dir = 3
+				end if
 			
-			if down
-				pY = pY + 1
-				checkPosition(0, 1, nPant)
-			end if
-			
-			if left
-				pX = pX - 1
-				checkPosition(-1, 0, nPant)
-			end if
-			
-			if right
-				pX = pX + 1
-				checkPosition(1, 0, nPant)
-			end if
-			
-			doFrame()
+				if left
+					if (nPant <> ice)
+						pX = pX - 1
+						checkPosition(-1, 0, nPant)
+					end if	
+					dir = 4
+				end if
+				
+				if right
+					if (nPant <> ice)
+						pX = pX + 1
+						checkPosition(1, 0, nPant)
+					end if
+					dir = 2
+				end if
+				
+				doFrame()
+			end if	
 		end if
 	elseif action = 1
 		playerAction()
@@ -119,16 +137,39 @@ end sub
 ' Impide que el personaje salga de la pantalla
 
 sub ajustarPos ()
+
+	' Se desliza en caso de encontrarse sobre hielo
+	
+	if (nPant = ice and dir)
+		if (dir = 1)
+			pY = pY - 1
+			checkPosition(0, -1, nPant)
+		elseif (dir = 2)
+			pX = pX + 1
+			checkPosition(1, 0, nPant)
+		elseif(dir = 3)
+			pY = pY + 1
+			checkPosition(0, 1, nPant)
+		elseif (dir = 4)
+			pX = pX - 1
+			checkPosition(-1, 0, nPant)
+		end if
+	end if			
+
 	if pX < 0
 		pX = 0
+		dir = 0
 	elseif pX > mapscreenwidth * TILESIZE - PLAYERSIZE
 		pX = mapscreenwidth * TILESIZE - PLAYERSIZE
+		dir = 0
 	end if
 	
 	if pY < 0
 		pY = 0
+		dir = 0
 	elseif pY > mapscreenheight * TILESIZE - PLAYERSIZE
 		pY = mapscreenheight * TILESIZE - PLAYERSIZE
+		dir = 0
 	end if
 end sub
 
@@ -145,6 +186,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) >= 9)
 		pX = pX - despX
 		pY = pY - despY
+		dir = 0
 	end if
 	
 	' Colisión con una puerta
@@ -250,8 +292,13 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
-		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
-		pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
+		if (getTileAt((mapoffsetx + pX) >> 1, (mapoffsety + pY) >> 1, n) = 22)
+			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
+			pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
+		else
+			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 52
+			pintaTile(mapoffsetx + pX, mapoffsety + pY, 52)
+		end if
 		makeSound(5)
 		
 		if (n = inicio and mapabehaviour(n, 4) = 2)
@@ -278,8 +325,13 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) - 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
-		mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
-		pintaTile(mapoffsetx + x, y, 22)
+		if (getTileAt((mapoffsetx + x) >> 1, (mapoffsety + y) >> 1, n) = 50)
+			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
+			pintaTile(mapoffsetx + x, y, 22)
+		else
+			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 51
+			pintaTile(mapoffsetx + x, y, 51)
+		end if
 		makeSound(6)
 	end if
 	
