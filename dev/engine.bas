@@ -9,11 +9,14 @@ Const PLAYERSIZE as uByte = 2
 Const MAPWIDTH As uByte = 4
 Const MAPHEIGHT As uByte = 4
 
-const ice as uByte = 0
-const maze as uByte = 9
-const chess as uByte = 10
-const piano as uByte = 13
-const inicio as uByte = 14
+const ice as uByte = 6
+const maze as uByte = 4
+const chess as uByte = 5
+const piano as uByte = 7
+const inicio as uByte = 8
+const clue as uByte = 3
+const secret as uByte = 1
+const inception as uByte = 0
 
 '' Variables
 
@@ -41,14 +44,15 @@ dim dir as Byte
 sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, action as uByte)
 
 	if up  or down or left or right
-		if not ((not up and not down and left and right) or (up and down and not left and not right))
-			if (not(nPant = ice and dir))
+		if not ((left and right) or (up and down))
+			if (not(nPant = ice and (dir or getCDir())) or (mapabehaviour(ice, 4) > 2 and dir = 0))
 				if up
 					if (nPant <> ice)
 						pY = pY - 1
 						checkPosition(0, -1, nPant)
-					end if	
+					end if
 					dir = 1
+					setCDir(3)
 				end if
 				
 				if down
@@ -57,6 +61,7 @@ sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, act
 						checkPosition(0, 1, nPant)
 					end if
 					dir = 3
+					setCDir(1)
 				end if
 			
 				if left
@@ -65,6 +70,7 @@ sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, act
 						checkPosition(-1, 0, nPant)
 					end if	
 					dir = 4
+					setCDir(2)
 				end if
 				
 				if right
@@ -73,10 +79,13 @@ sub proccessKeys (up as uByte, down as uByte, left as uByte, right as uByte, act
 						checkPosition(1, 0, nPant)
 					end if
 					dir = 2
+					setCDir(4)
 				end if
 				
 				doFrame()
 			end if	
+		else
+			pFrame = 0
 		end if
 	elseif action = 1
 		playerAction()
@@ -104,7 +113,7 @@ sub playerAction ()
 	
 	if (pY = 2 and (pX = 14 or pX = 15))
 		if (nPant = inicio and mapabehaviour(nPant, 4) = 0)
-			makeSound(7)
+			makeSound(SOUNDBUTTON)
 			Dim addr as uInteger
 			addr = 22528 + 19 + 0
 			poke addr, 96
@@ -128,10 +137,17 @@ sub animacion ()
 		fsp21SetGfxSprite (0, 8, 9, 10, 11)
 	elseif pFrame = 3  
 		fsp21SetGfxSprite (0, 16, 17, 18, 19)
-	elseif pFrame = 5
-		fsp21SetGfxSprite (0, 24, 25, 26, 27)
-		pFrame = 0
 	end if
+	
+	if pFrame = 5
+		fsp21SetGfxSprite (0, 24, 25, 26, 27)
+		if (nPant = ice)
+			cAnimacion(pFrame)
+		end if
+		pFrame = 0
+	elseif (nPant = ice)
+		cAnimacion(pFrame)
+	end if	
 end sub
 
 ' Impide que el personaje salga de la pantalla
@@ -140,7 +156,7 @@ sub ajustarPos ()
 
 	' Se desliza en caso de encontrarse sobre hielo
 	
-	if (nPant = ice and dir)
+	if (nPant = ice)
 		if (dir = 1)
 			pY = pY - 1
 			checkPosition(0, -1, nPant)
@@ -153,6 +169,9 @@ sub ajustarPos ()
 		elseif (dir = 4)
 			pX = pX - 1
 			checkPosition(-1, 0, nPant)
+		end if
+		if (mapabehaviour(ice, 4) < 3)
+			cAjustarPos()
 		end if
 	end if			
 
@@ -274,37 +293,41 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 				doorDown(n, 1)
 			elseif (mapabehaviour(n, 3) = 4)
 				doorLeft(n, 1)
-			end if
+			elseif (mapabehaviour(n, 3) = 5)
+				doorUp(n, 1)
+				doorRight(n, 1)
+				doorDown(n, 1)
+				doorLeft(n, 1)
+				makeSound(SOUNDBOOM)
+				cambiaMapa(12, 12, maze, 54)
+				pintaTile(mapoffsetx + 12, mapoffsety + 12, 54)
+			end if	
 			mapabehaviour(n, 2) = 0
 		end if
 	end if
 	
 	' Interruptor pulsado
 	
-	dim x, y as uInteger
-	
 	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 1 and _
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 1 and _
 	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 1 and _
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1)
-		x = pX
-		y = pY
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
 		if (getTileAt((mapoffsetx + pX) >> 1, (mapoffsety + pY) >> 1, n) = 22)
-			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 50
+			cambiaMapa(pX, pY, n, 50)
 			pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
 		else
-			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 52
+			cambiaMapa(pX, pY, n, 52)
 			pintaTile(mapoffsetx + pX, mapoffsety + pY, 52)
 		end if
-		makeSound(5)
+		makeSound(SOUNDSWITCHON)
 		
 		if (n = inicio and mapabehaviour(n, 4) = 2)
 			mapabehaviour(n, 4) = 3
 			doorUp(n, 0)
-			makeSound(1)
+			makeSound(SOUNDSUCCESS)
 			addr = 22528 + 19 + 0
 			poke addr, 80
 		end if
@@ -320,23 +343,36 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 and _
 	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 and _
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4))
-		x = pX - despX
-		y = pY - despY
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) - 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
-		if (getTileAt((mapoffsetx + x) >> 1, (mapoffsety + y) >> 1, n) = 50)
-			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 22
-			pintaTile(mapoffsetx + x, y, 22)
+		if (getTileAt((mapoffsetx + pX - despX) >> 1, (mapoffsety + pY - despY) >> 1, n) = 50)
+			cambiaMapa(pX - despX, pY - despY, n, 22)
+			pintaTile(mapoffsetx + pX - despX, mapoffsety + pY - despY, 22)
 		else
-			mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = 51
-			pintaTile(mapoffsetx + x, y, 51)
+			cambiaMapa(pX - despX, pY - despY, n, 51)
+			pintaTile(mapoffsetx + pX - despX, mapoffsety + pY - despY, 51)
 		end if
-		makeSound(6)
+		makeSound(SOUNDSWITCHOFF)
 	end if
 	
 	if (n = piano)
 		pianoPos()
+	end if
+	
+	' Agujero
+	
+	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 5 or _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 5 or _
+	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 5 or _
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 5)
+		if (n = maze)
+			nPant = ice
+		elseif (n = ice)
+			nPant = inception
+		end if
+		makeSound(SOUNDFALL)
+		initScreen()
 	end if
 	
 end sub
@@ -344,7 +380,7 @@ end sub
 ' Abrir/Cerrar puertas
 
 sub doorUp(n as uInteger, close as uByte)
-    makeSound (4)
+    makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
 	if (close)
@@ -354,15 +390,14 @@ sub doorUp(n as uInteger, close as uByte)
 		doorTile0 = 18
 		doorTile1 = 19
 	end if
-	
-    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 0) * mapscreenwidth + mapoffsetx / 2 + 5) = doorTile0
-	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 0) * mapscreenwidth + mapoffsetx / 2 + 6) = doorTile1
+	cambiaMapa(10, 0, n, doorTile0)
+	cambiaMapa(12, 0, n, doorTile1)
 	pintaTile(mapoffsetx + 5 * 2, mapoffsety + 0 * 2, doorTile0)
 	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 0 * 2, doorTile1)
 end sub
 
 sub doorRight(n as uInteger, close as uByte)
-    makeSound (4)
+    makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
 	if (close)
@@ -372,15 +407,14 @@ sub doorRight(n as uInteger, close as uByte)
 		doorTile0 = 46
 		doorTile1 = 47
 	end if
-	
-    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 5) * mapscreenwidth + mapoffsetx / 2 + 11) = doorTile0
-	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 6) * mapscreenwidth + mapoffsetx / 2 + 11) = doorTile1	
+	cambiaMapa(22, 10, n, doorTile0)
+	cambiaMapa(22, 12, n, doorTile1)
 	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 5 * 2, doorTile0)
 	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 6 * 2, doorTile1)
 end sub
 
 sub doorDown(n as uInteger, close as uByte)
-    makeSound (4)
+    makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
 	if (close)
@@ -391,14 +425,14 @@ sub doorDown(n as uInteger, close as uByte)
 		doorTile1 = 45
 	end if
 	
-    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 11) * mapscreenwidth + mapoffsetx / 2 + 5) = doorTile0
-	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 11) * mapscreenwidth + mapoffsetx / 2 + 6) = doorTile1
+	cambiaMapa(10, 22, n, doorTile0)
+	cambiaMapa(12, 22, n, doorTile1)
 	pintaTile(mapoffsetx + 5 * 2, mapoffsety + 11 * 2, doorTile0)
 	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 11 * 2, doorTile1)
 end sub
 
 sub doorLeft(n as uInteger, close as uByte)
-    makeSound (4)
+    makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
 	if (close)
@@ -409,8 +443,8 @@ sub doorLeft(n as uInteger, close as uByte)
 		doorTile1 = 21
 	end if
 	
-    mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 5) * mapscreenwidth + mapoffsetx / 2 + 0) = doorTile0
-	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + 6) * mapscreenwidth + mapoffsetx / 2 + 0) = doorTile1	
+	cambiaMapa(0, 10, n, doorTile0)
+	cambiaMapa(0, 12, n, doorTile1)	
 	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 5 * 2, doorTile0)
 	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 6 * 2, doorTile1)
 end sub
@@ -455,10 +489,24 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	
 	if (n = maze)
 		salida = pintaNumeros(mapoffsetx, mapoffsety)
+		if (mapabehaviour(secret, 4) = 1 and mapabehaviour(chess, 4) = 1 and mapabehaviour(piano, 4) = 24 and mapabehaviour(clue, 4) = 1 and mapabehaviour(maze, 4) = 0)
+			mapabehaviour(maze, 4) = 1
+			mapabehaviour(maze, 2) = 1
+		end if
 	elseif (n = chess)
 		pintaNumR()
+	elseif (n = ice)
+		pX = 18
+		pY = 22
+		makeSound(SOUNDDROP)
+	elseif (n = inception)
+		makeSound(SOUNDDROP)
 	end if
 
+end sub
+
+sub cambiaMapa (x as uInteger, y as uInteger, n as uInteger, t as uByte)
+	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = t
 end sub
 
 ' Devuelve el valor del tile en x, y de la pantalla n

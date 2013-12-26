@@ -1,0 +1,1 @@
+cmd /k reordenator graficos.png graficos-import.png

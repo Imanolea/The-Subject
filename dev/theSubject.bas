@@ -10,12 +10,13 @@
 #include once "charsetTextos.bas"
 #include once "tileset.bas"
 #include once "mapa.bas"
+#include once "soundEffects.bas"
 #include once "maze.bas"
 #include once "engine.bas"
+#include once "ice.bas"
 #include once "piano.bas"
 #include once "chess.bas"
 #include once "music.bas"
-#include once "soundEffects.bas"
 
 '' Constantes
 
@@ -125,6 +126,11 @@ sub actualizarJugador ()
 	' Mover el sprite
 	fsp21MoveSprite (0, mapoffsetx + pX, mapoffsety + pY)
 	
+	' Mueve el clon
+	if (nPant = ice)
+		fsp21MoveSprite (1, mapoffsetx + cPX, mapoffsety + cPY)
+	end if
+	
 	' Actualizar Sprites
 	fsp21UpdateSprites ()
 end sub
@@ -143,6 +149,19 @@ sub initScreen ()
 	fsp21MoveSprite(0, pX, pY)
 	fsp21DuplicateCoordinatesSprite(0)
 	fsp21ActivateSprite(0)
+	fsp21SetGfxSprite (0, 0, 1, 2, 3)  
+	
+	if (nPant = ice)
+		fsp21ColourSprite(1, 0, 0, 0, 0)
+		fsp21MoveSprite(1, cPX, cPY)
+		fsp21DuplicateCoordinatesSprite(1)
+		fsp21ActivateSprite(1)
+		fsp21SetGfxSprite (0, 32, 33, 34, 35)
+		cPX = 18
+		cPY = 0
+	else
+		fsp21DeactivateSprite(1)
+	end if
 	
 	fsp21InitSprites()
 
