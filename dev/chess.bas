@@ -32,7 +32,7 @@ Dim posP (15) as uByte => { _
 
 Dim numR as uByte = 8
 
-'' Funciones
+'' Métodos
 
 ' Realiza las acciones relativas a la interaccion con el tablero
 

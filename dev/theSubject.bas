@@ -13,7 +13,9 @@
 #include once "soundEffects.bas"
 #include once "maze.bas"
 #include once "engine.bas"
+#include once "clue.bas"
 #include once "ice.bas"
+#include once "secret.bas"
 #include once "piano.bas"
 #include once "chess.bas"
 #include once "music.bas"
@@ -34,9 +36,9 @@ poke uInteger 23606, @charsetGraficos (0) - 256
 fsp21SetGfxAddress (@spriteset (0))
 
 isOver = 0
-nPant = 0
+nPant = 8
 
-pX = 20
+pX = 12
 pY = 12
 
 initScreen()
@@ -57,16 +59,16 @@ while(NOT isOver)
 	' Si pulsamos M, dibujamos la siguiente pantalla del mapa
 	
 	if  (in (32766) bAnd 8) = 0 and nPant > 0
-		nPant = nPant - 1
-		initScreen()
-	elseif (in (32766) bAnd 4) = 0 and nPant < 15
-		nPant = nPant + 1
-		initScreen()
-	end if
-	
-	if  (in (32766) bAnd 2) = 0
-		initScreen()
-	end if	
+        nPant = nPant - 1
+        initScreen()
+    elseif (in (32766) bAnd 4) = 0 and nPant < 15
+        nPant = nPant + 1
+        initScreen()
+    end if
+        
+    if  (in (32766) bAnd 2) = 0
+        initScreen()
+    end if
 
 	' Esperar
 	asm
@@ -127,7 +129,7 @@ sub actualizarJugador ()
 	fsp21MoveSprite (0, mapoffsetx + pX, mapoffsety + pY)
 	
 	' Mueve el clon
-	if (nPant = ice)
+	if (nPant = ice or nPant = secret)
 		fsp21MoveSprite (1, mapoffsetx + cPX, mapoffsety + cPY)
 	end if
 	
@@ -148,17 +150,25 @@ sub initScreen ()
 	fsp21ColourSprite(0, 0, 0, 0, 0)
 	fsp21MoveSprite(0, pX, pY)
 	fsp21DuplicateCoordinatesSprite(0)
-	fsp21ActivateSprite(0)
-	fsp21SetGfxSprite (0, 0, 1, 2, 3)  
+	fsp21ActivateSprite(0) 
+	fsp21SetGfxSprite (0, 0, 1, 2, 3) 
 	
 	if (nPant = ice)
 		fsp21ColourSprite(1, 0, 0, 0, 0)
 		fsp21MoveSprite(1, cPX, cPY)
 		fsp21DuplicateCoordinatesSprite(1)
 		fsp21ActivateSprite(1)
-		fsp21SetGfxSprite (0, 32, 33, 34, 35)
+		fsp21SetGfxSprite (0, 16, 17, 18, 19)
 		cPX = 18
 		cPY = 0
+	elseif (nPant = secret)
+		fsp21ColourSprite(1, 0, 0, 0, 0)
+		fsp21MoveSprite(1, cPX, cPY)
+		fsp21DuplicateCoordinatesSprite(1)
+		fsp21ActivateSprite(1)
+		fsp21SetGfxSprite (0, 16, 17, 18, 19)
+		cPX = 8
+		cPY = 16
 	else
 		fsp21DeactivateSprite(1)
 	end if

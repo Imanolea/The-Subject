@@ -6,8 +6,8 @@
 
 Const TILESIZE As uByte = 2
 Const PLAYERSIZE as uByte = 2
-Const MAPWIDTH As uByte = 4
-Const MAPHEIGHT As uByte = 4
+Const MAPWIDTH As uByte = 3
+Const MAPHEIGHT As uByte = 3
 
 const ice as uByte = 6
 const maze as uByte = 4
@@ -125,6 +125,8 @@ sub playerAction ()
 
 	if (nPant = chess and mapabehaviour(nPant, 4) = 0)
 		colocaPieza(nPant)
+	elseif (nPant = secret and not getMov())
+		mueveClon(pX, pY, getCPX(), getCPY())
 	end if
 end sub
 
@@ -134,13 +136,13 @@ sub animacion ()
 	if pFrame = 0  or pFrame = 2  
 		fsp21SetGfxSprite (0, 0, 1, 2, 3)  
 	elseif pFrame = 1  
-		fsp21SetGfxSprite (0, 8, 9, 10, 11)
+		fsp21SetGfxSprite (0, 4, 5, 6, 7)
 	elseif pFrame = 3  
-		fsp21SetGfxSprite (0, 16, 17, 18, 19)
+		fsp21SetGfxSprite (0, 8, 9, 10, 11)
 	end if
 	
 	if pFrame = 5
-		fsp21SetGfxSprite (0, 24, 25, 26, 27)
+		fsp21SetGfxSprite (0, 12, 13, 14, 15)
 		if (nPant = ice)
 			cAnimacion(pFrame)
 		end if
@@ -173,7 +175,9 @@ sub ajustarPos ()
 		if (mapabehaviour(ice, 4) < 3)
 			cAjustarPos()
 		end if
-	end if			
+	elseif (nPant = secret and getMov())
+		actualizaClon(getCPX(), getCPY())
+	end if
 
 	if pX < 0
 		pX = 0
@@ -218,8 +222,9 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			if (n = maze)
 				if (salida = 1)
 					laberinto = laberinto + 1
-					if (laberinto = 5)
+					if (laberinto = 3)
 						nPant = nPant - MAPWIDTH
+						laberinto = 0
 					end if	
 				else
 					laberinto = 0
@@ -234,9 +239,10 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			if (n = maze)
 				if (salida = 2)
 					laberinto = laberinto + 1
-					if (laberinto = 5)
+					if (laberinto = 3)
 						nPant = nPant + 1
-					end if	
+						laberinto = 0
+					end if
 				else
 					laberinto = 0
 				end if
@@ -248,8 +254,9 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			if (n = maze)
 				if (salida = 3)		
 					laberinto = laberinto + 1
-					if (laberinto = 5)
+					if (laberinto = 3)
 						nPant = nPant + MAPWIDTH
+						laberinto = 0
 					end if	
 				else
 					laberinto = 0
@@ -262,8 +269,9 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			if (n = maze)
 				if (salida = 4)
 					laberinto = laberinto + 1
-					if (laberinto = 5)
+					if (laberinto = 3)
 						nPant = nPant - 1
+						laberinto = 0
 					end if	
 				else
 					laberinto = 0
@@ -303,6 +311,9 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 				pintaTile(mapoffsetx + 12, mapoffsety + 12, 54)
 			end if	
 			mapabehaviour(n, 2) = 0
+			if (n = secret)
+				check()
+			end if
 		end if
 	end if
 	
@@ -311,7 +322,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 1 and _
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 1 and _
 	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 1 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1)
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1 and n <> secret)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
@@ -342,7 +353,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 	and not (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 4 and _
 	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 and _
 	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4))
+	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4) and n <> secret)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) - 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
@@ -489,7 +500,7 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	
 	if (n = maze)
 		salida = pintaNumeros(mapoffsetx, mapoffsety)
-		if (mapabehaviour(secret, 4) = 1 and mapabehaviour(chess, 4) = 1 and mapabehaviour(piano, 4) = 24 and mapabehaviour(clue, 4) = 1 and mapabehaviour(maze, 4) = 0)
+		if (mapabehaviour(secret, 4) = 9 and mapabehaviour(chess, 4) = 1 and mapabehaviour(piano, 4) = 24 and mapabehaviour(clue, 4) = 1 and mapabehaviour(maze, 4) = 0)
 			mapabehaviour(maze, 4) = 1
 			mapabehaviour(maze, 2) = 1
 		end if
@@ -501,6 +512,10 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 		makeSound(SOUNDDROP)
 	elseif (n = inception)
 		makeSound(SOUNDDROP)
+	elseif (n = secret)
+		cAnimacion(2)
+		setMoves(4)
+		pintaMoves()
 	end if
 
 end sub

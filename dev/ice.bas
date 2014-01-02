@@ -12,17 +12,17 @@ Dim cPX, cPY as Byte
 Dim cDir as uByte
 
 
-'' Funciones
+'' Métodos
 
 sub cAnimacion (cPFrame as uByte)
 	if cPFrame = 0  or cPFrame = 2  
-		fsp21SetGfxSprite (1, 32, 33, 34, 35)  
+		fsp21SetGfxSprite (1, 16, 17, 18, 19)  
 	elseif cPFrame = 1  
-		fsp21SetGfxSprite (1, 40, 41, 42, 43)
+		fsp21SetGfxSprite (1, 20, 21, 22, 23)
 	elseif cPFrame = 3  
-		fsp21SetGfxSprite (1, 48, 49, 50, 51)
+		fsp21SetGfxSprite (1, 24, 25, 26, 27)
 	elseif cPFrame = 5
-		fsp21SetGfxSprite (1, 56, 57, 58, 59)
+		fsp21SetGfxSprite (1, 28, 29, 30, 31)
 	end if
 end sub
 
@@ -133,4 +133,12 @@ end sub
 
 function getCDir()
 	return cDir
+end function
+
+function getCPX()
+	return cPX
+end function
+
+function getCPY()
+	return cPY
 end function
