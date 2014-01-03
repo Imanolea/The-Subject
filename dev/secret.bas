@@ -96,7 +96,7 @@ sub check()
 	getCharBehaviourAt(mapoffsetx + cPX + 1, mapoffsety + cPY, nPant) = 1 and _
 	getCharBehaviourAt(mapoffsetx + cPX, mapoffsety + cPY + 1, nPant) = 1 and _
 	getCharBehaviourAt(mapoffsetx + cPX + 1, mapoffsety + cPY + 1, nPant) = 1)
-		mapabehaviour(secret, 4) = mapabehaviour(secret, 4) + 1
+		mapabehaviour(nPant, 4) = mapabehaviour(nPant, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MoveSprite(1, 0, 0)
 		fsp21MinUpdateSprites ()
@@ -106,8 +106,10 @@ sub check()
 	end if
 	
 	if (mapabehaviour(nPant, 4) = 9)
+		oX = cPX
+		oY = cPY
 		fsp21DeactivateSprite(1)
-		doorDown(secret, 0)
+		doorDown(nPant, 0)
 		makeSound(SOUNDSUCCESS)
 	end if
 	
@@ -120,7 +122,8 @@ sub pintaMoves()
 end sub
 
 sub despulsar()
-	mapabehaviour(secret, 4) = 0
+	mapabehaviour(nPant, 4) = 0
+	fsp21MoveSprite(0, 0, 0)
 	fsp21MoveSprite(1, 0, 0)
 	fsp21MinUpdateSprites ()
 	dim cont as Byte = 0

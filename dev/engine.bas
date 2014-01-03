@@ -125,7 +125,7 @@ sub playerAction ()
 
 	if (nPant = chess and mapabehaviour(nPant, 4) = 0)
 		colocaPieza(nPant)
-	elseif (nPant = secret and not getMov())
+	elseif (nPant = secret and not getMov() and mapabehaviour(nPant, 4) <> 9)
 		mueveClon(pX, pY, getCPX(), getCPY())
 	end if
 end sub
