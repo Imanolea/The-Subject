@@ -254,9 +254,9 @@ end sub
 
 sub playKuroi (i as uByte)
     if (notasKuroi(i)/2*2 = notasKuroi (i))		
-		pushNote (i)
+		pushNote (i, 0)
 	else
-		pushNoteSharp (i)
+		pushNote (i, 1)
 	end if	
 	pushKey (i)
 	Asm	
@@ -269,9 +269,9 @@ sub playKuroi (i as uByte)
 	Do
         i = i + 1
         if (notasKuroi(i)/2*2 = notasKuroi (i))		
-		    pushNote (i)
+		    pushNote (i, 0)
 		else
-		    pushNoteSharp (i)
+		    pushNote (i, 1)
 		end if	
 		pushKey (i)
 		Asm
@@ -281,61 +281,40 @@ sub playKuroi (i as uByte)
 		End Asm
 	Loop While i < mapabehaviour(nPant, 4)
 	if (notasKuroi (i)/2*2 = notasKuroi (i))		
-	    pushNote (24)
+	    pushNote (24, 0)
 	else
-	    pushNoteSharp (24)
+	    pushNote (24, 1)
 	end if	
 	pushKey (24)
 end sub
 
-sub pushNote (nota as uByte)
+sub pushNote (nota as uByte, sharp as uByte)
     Dim addr as uInteger
-	Dim color as uByte
+	Dim color as uInteger
 	if (nota > 0)
+		color = 120
 	    addr = 22528 + mapoffsetx + 4 + notasKuroi(nota-1) + ((mapoffsety + 6)<< 5)
-		poke addr, 120: poke addr + 1, 120
-		poke addr + 32, 120: poke addr + 33, 120
-		poke addr + 64, 120: poke addr + 65, 120
-		poke addr + 96, 120: poke addr + 97, 120
 	end if
+	colorKey(addr, color)
 	if (nota < 24)
+		if (sharp)
+			color = 125
+		else
+			color = 104
+		end if	
         addr = 22528 + mapoffsetx + 4 + notasKuroi(nota) + ((mapoffsety + 6)<< 5)
-	    poke addr, 104: poke addr + 1, 104
-		poke addr + 32, 104: poke addr + 33, 104
-		poke addr + 64, 104: poke addr + 65, 104
-		poke addr + 96, 104: poke addr + 97, 104
 	else
+		color = 120
 	    addr = 22528 + mapoffsetx + 4 + notasKuroi(nota-1) + ((mapoffsety + 6)<< 5)
-		poke addr, 120: poke addr + 1, 120
-		poke addr + 32, 120: poke addr + 33, 120
-		poke addr + 64, 120: poke addr + 65, 120
-		poke addr + 96, 120: poke addr + 97, 120
 	end if
+	colorKey(addr, color)
 end sub
 
-sub pushNoteSharp (nota as uByte)
-    Dim addr as uInteger
-	Dim color as uByte
-	if (nota > 0)
-	    addr = 22528 + mapoffsetx + 4 + notasKuroi(nota-1) + ((mapoffsety + 6)<< 5)
-		poke addr, 120: poke addr + 1, 120
-		poke addr + 32, 120: poke addr + 33, 120
-		poke addr + 64, 120: poke addr + 65, 120
-		poke addr + 96, 120: poke addr + 97, 120
-	end if
-	if (nota < 24)
-        addr = 22528 + mapoffsetx + 4 + notasKuroi(nota) + ((mapoffsety + 6)<< 5)
-	    poke addr, 125: poke addr + 1, 125
-		poke addr + 32, 125: poke addr + 33, 125
-		poke addr + 64, 125: poke addr + 65, 125
-		poke addr + 96, 125: poke addr + 97, 125
-	else
-	    addr = 22528 + mapoffsetx + 4 + notasKuroi(nota-1) + ((mapoffsety + 6)<< 5)
-		poke addr, 120: poke addr + 1, 120
-		poke addr + 32, 120: poke addr + 33, 120
-		poke addr + 64, 120: poke addr + 65, 120
-		poke addr + 96, 120: poke addr + 97, 120
-	end if
+sub colorKey(addr as uInteger, color as uByte)
+	poke addr, color: poke addr + 1, color
+	poke addr + 32, color: poke addr + 33, color
+	poke addr + 64, color: poke addr + 65, color
+	poke addr + 96, color: poke addr + 97, color
 end sub
 
 sub pushKey (posNota as uByte)

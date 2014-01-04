@@ -12,6 +12,7 @@ Const SOUNDSWITCHOFF as uByte = 6
 const SOUNDBUTTON as uByte = 7
 const SOUNDBOOM as uByte = 8
 const SOUNDFALL as uByte = 9
+const SOUNDALARM as uByte = 10
 
 
 Sub makeSound (nSound as uByte)
@@ -185,6 +186,7 @@ soundEffectsData:
 	defw soundEffectsData_sfx7
 	defw soundEffectsData_sfx8
 	defw soundEffectsData_sfx9
+	defw soundEffectsData_sfx10
 
 soundEffectsData_sfx0:
 	defb 1 ;tone
@@ -266,6 +268,11 @@ soundEffectsData_sfx9:
 	defw 10,400,0,0,0
 	defb 1 ;tone
 	defw 10,400,200,65516,16
+	defb 0
+	
+soundEffectsData_sfx10:
+	defb 1 ;tone
+	defw 3500,10,2,0,25728
 	defb 0
 	
 End Asm

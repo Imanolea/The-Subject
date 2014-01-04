@@ -17,6 +17,7 @@ const inicio as uByte = 8
 const clue as uByte = 3
 const secret as uByte = 1
 const inception as uByte = 0
+const ending as uByte = 2
 
 '' Variables
 
@@ -24,6 +25,7 @@ Dim mapscreenwidth As uByte = 16
 Dim mapscreenheight As uByte = 12
 Dim mapoffsetx as uByte = 0
 Dim mapoffsety as uByte = 0
+Dim isend as uByte
 
 ' Pantalla
 Dim nPant as uByte
@@ -112,12 +114,12 @@ sub playerAction ()
 	' Pulsar botón
 	
 	if (pY = 2 and (pX = 14 or pX = 15))
-		if (nPant = inicio and mapabehaviour(nPant, 4) = 0)
+		if (nPant = inicio and mapabehaviour(nPant, 4) = 1)
 			makeSound(SOUNDBUTTON)
 			Dim addr as uInteger
 			addr = 22528 + 19 + 0
 			poke addr, 96
-			mapabehaviour(nPant, 4) = 1
+			mapabehaviour(nPant, 4) = 2
 		elseif (nPant = piano and mapabehaviour(nPant, 4) <> 24)
 			pianoButton()
 		end if
@@ -127,6 +129,10 @@ sub playerAction ()
 		colocaPieza(nPant)
 	elseif (nPant = secret and not getMov() and mapabehaviour(nPant, 4) <> 9)
 		mueveClon(pX, pY, getCPX(), getCPY())
+	elseif (nPant = inicio and mapabehaviour(nPant, 4) = 0)
+		mapabehaviour(nPant, 4) = 1
+		makeSound(SOUNDALARM)
+		initScreen()
 	end if
 end sub
 
@@ -199,7 +205,7 @@ end sub
 ' Realiza la interacción correspondiente con la posición del jugador
 ' Toma como parámetro el desplazamiento
 
-sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
+sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 
 	' Colisión con algo sólido
 	
@@ -231,6 +237,15 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 				end if	
 			elseif (n = inicio)
 				nPant = maze
+			elseif (n = inception)
+				nPant = ending
+			elseif (n = ending)
+				cls
+				poke uInteger 23606, 15616 - 256
+				print at 11, 14; "Fin"
+				fsp21DeactivateSprite(0)
+				isend = 1
+				nPant = chess
 			else
 				nPant = nPant - MAPWIDTH
 			end if
@@ -281,7 +296,9 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 			end if
 			pX = (mapscreenwidth - mapoffsetx) * 2 - PLAYERSIZE - 1
 		end if
-		initScreen()
+		if (not isend)
+			initScreen()
+		end if	
 	end if
 	
 	' Cerrar las puertas
@@ -309,6 +326,11 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 				makeSound(SOUNDBOOM)
 				cambiaMapa(12, 12, maze, 54)
 				pintaTile(mapoffsetx + 12, mapoffsety + 12, 54)
+			elseif (mapabehaviour(n, 3) = 6)
+				doorsDown(n)
+				doorUp(n, 0)
+				print paper 7; ink 7; bright 1; at 0, 15; "  "
+				print paper 7; ink 7; bright 1; at 1, 15; "  "
 			end if	
 			mapabehaviour(n, 2) = 0
 			if (n = secret)
@@ -335,8 +357,8 @@ sub checkPosition(despX as uByte, despY as uByte, n as uInteger)
 		end if
 		makeSound(SOUNDSWITCHON)
 		
-		if (n = inicio and mapabehaviour(n, 4) = 2)
-			mapabehaviour(n, 4) = 3
+		if (n = inicio and mapabehaviour(n, 4) = 3)
+			mapabehaviour(n, 4) = 4
 			doorUp(n, 0)
 			makeSound(SOUNDSUCCESS)
 			addr = 22528 + 19 + 0
@@ -390,7 +412,7 @@ end sub
 
 ' Abrir/Cerrar puertas
 
-sub doorUp(n as uInteger, close as uByte)
+sub doorUp(n as uByte, close as uByte)
     makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
@@ -407,7 +429,7 @@ sub doorUp(n as uInteger, close as uByte)
 	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 0 * 2, doorTile1)
 end sub
 
-sub doorRight(n as uInteger, close as uByte)
+sub doorRight(n as uByte, close as uByte)
     makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
@@ -424,7 +446,7 @@ sub doorRight(n as uInteger, close as uByte)
 	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 6 * 2, doorTile1)
 end sub
 
-sub doorDown(n as uInteger, close as uByte)
+sub doorDown(n as uByte, close as uByte)
     makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
@@ -442,7 +464,7 @@ sub doorDown(n as uInteger, close as uByte)
 	pintaTile(mapoffsetx + 6 * 2, mapoffsety + 11 * 2, doorTile1)
 end sub
 
-sub doorLeft(n as uInteger, close as uByte)
+sub doorLeft(n as uByte, close as uByte)
     makeSound (SOUNDDOOR)
 	dim doorTile0, doorTile1 as uByte
 	
@@ -458,6 +480,23 @@ sub doorLeft(n as uInteger, close as uByte)
 	cambiaMapa(0, 12, n, doorTile1)	
 	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 5 * 2, doorTile0)
 	pintaTile(mapoffsetx + 0 * 2, mapoffsety + 6 * 2, doorTile1)
+end sub
+
+sub doorsDown(n as uByte)
+	makeSound (SOUNDDOOR)
+	dim doorTile0, doorTile1 as uByte
+	doorTile0 = 14
+	doorTile1 = 15
+	
+	cambiaMapa(4, 22, n, doorTile0)
+	cambiaMapa(6, 22, n, doorTile1)	
+	cambiaMapa(16, 22, n, doorTile0)
+	cambiaMapa(18, 22, n, doorTile1)	
+	pintaTile(mapoffsetx + 2 * 2, mapoffsety + 11 * 2, doorTile0)
+	pintaTile(mapoffsetx + 3 * 2, mapoffsety + 11 * 2, doorTile1)
+	makeSound (SOUNDDOOR)
+	pintaTile(mapoffsetx + 8 * 2, mapoffsety + 11 * 2, doorTile0)
+	pintaTile(mapoffsetx + 9 * 2, mapoffsety + 11 * 2, doorTile1)
 end sub
 
 ' Pintado
@@ -511,6 +550,10 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 		pY = 22
 		makeSound(SOUNDDROP)
 	elseif (n = inception)
+		Poke uInteger 23606, @charsetTextos (0) - 256
+		print paper 8; ink 8; bright 1; at 3, 8; "-)*-"
+		print paper 8; ink 8; bright 1; at 3, 20; "-,*-"
+		poke uInteger 23606, @charsetGraficos (0) - 256
 		makeSound(SOUNDDROP)
 	elseif (n = secret)
 		cAnimacion(2)
@@ -532,12 +575,12 @@ End Function
 
 ' Devuelve el comportamiento del tile en x, y de la pantalla n
 ' x, y = coordenadas de tile
-Function getTileBehaviourAt (x as uByte, y as uByte, n as uInteger) as uByte
+Function getTileBehaviourAt (x as uByte, y as uByte, n as uByte) as uByte
 	return tileBehaviour (getTileAt (x, y, n))
 End Function
 
 ' Devuelve el comportamiento del caracter en x, y de la pantalla n
 ' x, y = coordenadas de caracter
-Function getCharBehaviourAt (x as uByte, y as uByte, n as uInteger) as uByte
+Function getCharBehaviourAt (x as uByte, y as uByte, n as uByte) as uByte
    return getTileBehaviourAt (x >> 1, y >> 1, n)
 End Function

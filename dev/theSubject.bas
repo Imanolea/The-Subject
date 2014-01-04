@@ -37,13 +37,14 @@ fsp21SetGfxAddress (@spriteset (0))
 
 isOver = 0
 nPant = 8
+isend = 0
 
 pX = 12
 pY = 12
 
-initScreen()
+menu()
 
-while(NOT isOver)
+while(NOT isend)
 
 	'' poke uInteger 23606, 15616 - 256
 	'' Debug
@@ -77,6 +78,9 @@ while(NOT isOver)
 		halt
 	end asm
 
+wend
+
+while (not isOver)
 wend
 
 end
@@ -174,5 +178,25 @@ sub initScreen ()
 	end if
 	
 	fsp21InitSprites()
+
+end sub
+
+sub menu()
+
+	poke uInteger 23606, 15616 - 256
+	
+	print at 10, 11; "A game by"; at 12, 8; "Imanol Barriuso"	
+	pause 150
+	cls
+	pause 50
+	Poke uInteger 23606, @charsetTextos (0) - 256
+	print at 10, 10; "!"; CHR (34); "# $%&'#(!"
+	pause 150
+	poke uInteger 23606, 15616 - 256
+	print at 15, 12; CHR (34); "Act a"; CHR (34)
+	Poke uInteger 23606, @charsetTextos (0) - 256
+	print at 15, 16; CHR (43)
+	
+	poke uInteger 23606, @charsetGraficos (0) - 256
 
 end sub

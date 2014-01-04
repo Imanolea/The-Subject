@@ -70,7 +70,7 @@ sub cAjustarPos()
 	
 end sub	
 
-sub cCheckPosition(descPX as uByte, descPY as uByte, n as uInteger)
+sub cCheckPosition(descPX as uByte, descPY as uByte, n as uByte)
 	
 	' Colisión con algo sólido
 	
