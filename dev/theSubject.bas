@@ -12,8 +12,8 @@
 #include once "mapa.bas"
 #include once "soundEffects.bas"
 #include once "maze.bas"
-#include once "engine.bas"
 #include once "clue.bas"
+#include once "engine.bas"
 #include once "ice.bas"
 #include once "secret.bas"
 #include once "piano.bas"
@@ -32,23 +32,24 @@ dim isOver as uByte
 ' Inicializar
 
 border 0: paper 0: ink 7: bright 0: cls
-poke uInteger 23606, @charsetGraficos (0) - 256
 fsp21SetGfxAddress (@spriteset (0))
 
 isOver = 0
-nPant = 8
+nPant = 6
 isend = 0
 
 pX = 12
 pY = 12
 
+fsp21DummyContainer ()
+
 menu()
 
 while(NOT isend)
 
-	'' poke uInteger 23606, 15616 - 256
+	''poke uInteger 23606, 15616 - 256
 	'' Debug
-	'' poke uInteger 23606, @charsetGraficos (0) - 256
+	''poke uInteger 23606, @charsetGraficos (0) - 256
 	
 	controlProccess()
 	
@@ -147,7 +148,7 @@ sub initScreen ()
 	mapoffsety = mapabehaviour(nPant, 1)
 	
 	' Pintar pantalla
-	pintaMapa(0, 0, nPant)
+	pintaMapa(mapoffsetx, mapoffsety, nPant)
 	
 	' Configurar sprite
 	
@@ -162,7 +163,7 @@ sub initScreen ()
 		fsp21MoveSprite(1, cPX, cPY)
 		fsp21DuplicateCoordinatesSprite(1)
 		fsp21ActivateSprite(1)
-		fsp21SetGfxSprite (0, 16, 17, 18, 19)
+		fsp21SetGfxSprite (0, 8, 9, 2, 3)
 		cPX = 18
 		cPY = 0
 	elseif (nPant = secret)
@@ -170,7 +171,7 @@ sub initScreen ()
 		fsp21MoveSprite(1, cPX, cPY)
 		fsp21DuplicateCoordinatesSprite(1)
 		fsp21ActivateSprite(1)
-		fsp21SetGfxSprite (0, 16, 17, 18, 19)
+		fsp21SetGfxSprite (0, 8, 9, 2, 3)
 		cPX = 8
 		cPY = 16
 	else
@@ -182,21 +183,18 @@ sub initScreen ()
 end sub
 
 sub menu()
-
-	poke uInteger 23606, 15616 - 256
 	
 	print at 10, 11; "A game by"; at 12, 8; "Imanol Barriuso"	
 	pause 150
 	cls
 	pause 50
-	Poke uInteger 23606, @charsetTextos (0) - 256
+	pokeTextos()
 	print at 10, 10; "!"; CHR (34); "# $%&'#(!"
 	pause 150
-	poke uInteger 23606, 15616 - 256
+	pokeNormal()
 	print at 15, 12; CHR (34); "Act a"; CHR (34)
-	Poke uInteger 23606, @charsetTextos (0) - 256
+	pokeTextos()
 	print at 15, 16; CHR (43)
-	
-	poke uInteger 23606, @charsetGraficos (0) - 256
+	pokeGraficos()
 
 end sub

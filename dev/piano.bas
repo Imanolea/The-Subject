@@ -313,9 +313,13 @@ sub colorKey()
 end sub
 
 sub colorSharpKey()
-	poke addr, color: poke addr + 1, color
-	poke addr + 32, color: poke addr + 33, color
+	colorea(addr, color)
 	poke addr + 64, color: poke addr + 65, color
+end sub
+
+sub colorea(addrs as uInteger, colors as uByte)
+	poke addrs, colors: poke addrs + 1, colors
+	poke addrs + 32, colors: poke addrs + 33, colors
 end sub
 
 sub pushKey (posNota as uByte)
@@ -396,94 +400,27 @@ end sub
 
 sub play(pos as uByte)
 
-    if (not pos)
-        Asm         
-			LD B, 1
-        End asm
-	elseif (pos=2)
-		Asm         
-			LD B, 3
-        End asm
-	elseif (pos=4)
-		Asm        
-			LD B, 5                
-		End asm
-	elseif (pos=6)
-		Asm        
-			LD B, 7
-		End asm
-	elseif (pos=8)
-		Asm        
-			LD B, 9
-		End asm
-	elseif (pos=10)
-		Asm        
-			LD B, 11
-		End asm
-	elseif (pos=12)
-		Asm        
-			LD B, 13
-		End asm
-	elseif (pos=14)
-		Asm        
-			LD B, 15
-		End asm
+	dim nota as Byte
+
+	if (pos / 2 * 2 = pos)
+		nota = pos +1
 	elseif (pos=1)
-		Asm        
-			LD B, 17
-		End asm
+		nota = 17
 	elseif (pos=5)
-		Asm        
-			LD B, 19
-		End asm
+		nota = 19
 	elseif (pos=7)
-		Asm        
-			LD B, 21
-		End asm
+		nota = 21
 	elseif (pos=9)
-		Asm        
-			LD B, 23
-		End asm
+		nota = 23
 	elseif (pos=13)
-		Asm        
-			LD B, 25
-		End asm
-	elseif ((pos/2)=13)
-		Asm        
-			LD B, 27
-		End asm
-	elseif ((pos/2)=14)
-		Asm        
-			LD B, 29
-		End asm
-	elseif ((pos/2)=15)
-		Asm        
-			LD B, 31
-		End asm
-	elseif ((pos/2)=16)
-		Asm        
-			LD B, 33
-		End asm
-	elseif ((pos/2)=17)
-		Asm        
-			LD B, 35
-		End asm
-	elseif ((pos/2)=18)
-		Asm        
-			LD B, 37
-		End asm
-	elseif ((pos/2)=19)
-		Asm        
-			LD B, 39
-		End asm
+		nota = 25
 	end if
-        
-	Asm        
-		push ix        
-		LD    HL, MUSICDATAB
-		call START                
-		pop ix
-	End asm
+	
+	Poke @datosRutina, nota
+	
+	asm
+		call rutina
+	end asm
 
 	if (tPiano=1)
 		if (notasKuroi(nPlayed)=pos)
@@ -493,21 +430,18 @@ sub play(pos as uByte)
 				makeSound (1)
 				nPlayed = 0        
 				tPiano = 0
-				addr = 22528 + 19 + 0 
-				poke addr, 80                                
+				luzRoja()                               
 			elseif (nPlayed=24 and mapabehaviour(nPant, 4) = 23)
 				makeSound (1)
 				nPlayed = 0        
 				tPiano = 3
-				addr = 22528 + 19 + 0 
-				poke addr, 80
+				luzRoja()
 			end if
 		else
 			makeSound (0)
 			nPlayed = 0
 			tPiano = 0
-			addr = 22528 + 19 + 0 
-			poke addr, 80
+			luzRoja()
 		end if
 	elseif (tPiano = 2)
 		if (notasKuroi(23 - nPlayed)=pos)
@@ -516,8 +450,7 @@ sub play(pos as uByte)
 				makeSound (1)
 				nPlayed = 0        
 				tPiano = 4
-				addr = 22528 + 19 + 0 
-				poke addr, 80 
+				luzRoja()
 				doorUp(nPant, 0)
 				mapabehaviour(nPant, 4) = 24
 			end if
@@ -525,8 +458,29 @@ sub play(pos as uByte)
 			makeSound (0)
 			nPlayed = 0
 			tPiano = 3
-			addr = 22528 + 19 + 0
-			poke addr, 80
+			luzRoja()
 		end if
 	end if 
 end sub
+
+sub luzRoja()
+	poke 22528 + 19 + 0, 80
+end sub
+
+Sub myCodeContainer
+    Asm
+    rutina:
+		ld    a, (dato)
+        ld    b, a
+		push ix        
+		LD    HL, MUSICDATAB
+		call START                
+		pop ix
+        ret
+    End Asm
+datosRutina:
+    Asm
+    dato:
+        db 0
+    End Asm
+End Sub

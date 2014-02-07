@@ -9,11 +9,11 @@ Const PLAYERSIZE as uByte = 2
 Const MAPWIDTH As uByte = 3
 Const MAPHEIGHT As uByte = 3
 
-const ice as uByte = 6
+const ice as uByte = 8
 const maze as uByte = 4
 const chess as uByte = 5
 const piano as uByte = 7
-const inicio as uByte = 8
+const inicio as uByte = 6
 const clue as uByte = 3
 const secret as uByte = 1
 const inception as uByte = 0
@@ -21,9 +21,9 @@ const ending as uByte = 2
 
 '' Variables
 
-Dim mapscreenwidth As uByte = 16
+Dim mapscreenwidth As uByte = 12
 Dim mapscreenheight As uByte = 12
-Dim mapoffsetx as uByte = 0
+Dim mapoffsetx as uByte = 4
 Dim mapoffsety as uByte = 0
 Dim isend as uByte
 
@@ -142,13 +142,13 @@ sub animacion ()
 	if pFrame = 0  or pFrame = 2  
 		fsp21SetGfxSprite (0, 0, 1, 2, 3)  
 	elseif pFrame = 1  
-		fsp21SetGfxSprite (0, 4, 5, 6, 7)
+		fsp21SetGfxSprite (0, 0, 1, 2, 4)
 	elseif pFrame = 3  
-		fsp21SetGfxSprite (0, 8, 9, 10, 11)
+		fsp21SetGfxSprite (0, 0, 1, 5, 3)
 	end if
 	
 	if pFrame = 5
-		fsp21SetGfxSprite (0, 12, 13, 14, 15)
+		fsp21SetGfxSprite (0, 6, 7, 12, 13)
 		if (nPant = ice)
 			cAnimacion(pFrame)
 		end if
@@ -184,7 +184,12 @@ sub ajustarPos ()
 	elseif (nPant = secret and getMov())
 		actualizaClon(getCPX(), getCPY())
 	end if
+	
+	checkInside()
 
+end sub
+
+sub checkInside()
 	if pX < 0
 		pX = 0
 		dir = 0
@@ -207,12 +212,14 @@ end sub
 
 sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 
+	checkInside()
+
 	' Colisión con algo sólido
 	
-	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) >= 9 or _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) >= 9 or _
-		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) >= 9 or _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) >= 9)
+	if (getCharBehaviourAt(pX, pY, n) >= 9 or _
+		getCharBehaviourAt(pX + 1, pY, n) >= 9 or _
+		getCharBehaviourAt(pX, pY + 1, n) >= 9 or _
+		getCharBehaviourAt(pX + 1, pY + 1, n) >= 9)
 		pX = pX - despX
 		pY = pY - despY
 		dir = 0
@@ -220,11 +227,11 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 	
 	' Colisión con una puerta
 	
-	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 2 and _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 2 and _
-		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 2 and _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 2)
-		if (pX > pY and pY <= (mapscreenheight - mapoffsety) * 2 / 3)
+	if (getCharBehaviourAt(pX, pY, n) = 2 and _
+		getCharBehaviourAt(pX + 1, pY, n) = 2 and _
+		getCharBehaviourAt(pX, pY + 1, n) = 2 and _
+		getCharBehaviourAt(pX + 1, pY + 1, n) = 2)
+		if (pX > pY and pY <= (mapscreenheight) * 2 / 3)
 			if (n = maze)
 				if (salida = 1)
 					laberinto = laberinto + 1
@@ -241,7 +248,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 				nPant = ending
 			elseif (n = ending)
 				cls
-				poke uInteger 23606, 15616 - 256
+				pokeNormal()
 				print at 11, 14; "Fin"
 				fsp21DeactivateSprite(0)
 				isend = 1
@@ -249,8 +256,8 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 			else
 				nPant = nPant - MAPWIDTH
 			end if
-			pY = (mapscreenheight - mapoffsety) * 2 - PLAYERSIZE - 1
-		elseif (pX > pY and pX >= (mapscreenwidth - mapoffsetx) * 2 / 3 * 2)
+			pY = (mapscreenheight) * 2 - PLAYERSIZE - 1
+		elseif (pX > pY and pX >= (mapscreenwidth) * 2 / 3 * 2)
 			if (n = maze)
 				if (salida = 2)
 					laberinto = laberinto + 1
@@ -265,7 +272,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 				nPant = nPant + 1
 			end if
 			pX = 1
-		elseif (pY > pX and pY >= (mapscreenheight - mapoffsety) * 2 / 3 * 2)
+		elseif (pY > pX and pY >= (mapscreenheight) * 2 / 3 * 2)
 			if (n = maze)
 				if (salida = 3)		
 					laberinto = laberinto + 1
@@ -280,7 +287,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 				nPant = nPant + MAPWIDTH
 			end if
 			pY = 1
-		elseif (pY > pX and pX <= (mapscreenwidth - mapoffsetx) * 2 / 3)
+		elseif (pY > pX and pX <= (mapscreenwidth) * 2 / 3)
 			if (n = maze)
 				if (salida = 4)
 					laberinto = laberinto + 1
@@ -294,7 +301,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 			else
 				nPant = nPant - 1
 			end if
-			pX = (mapscreenwidth - mapoffsetx) * 2 - PLAYERSIZE - 1
+			pX = (mapscreenwidth) * 2 - PLAYERSIZE - 1
 		end if
 		if (not isend)
 			initScreen()
@@ -304,10 +311,10 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 	' Cerrar las puertas
 	
 	if (mapabehaviour(n, 2) = 1)
-		if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) < 2 and _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) < 2 and _
-		getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) < 2 and _
-		getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) < 2)
+		if (getCharBehaviourAt(pX, pY, n) < 2 and _
+		getCharBehaviourAt(pX + 1, pY, n) < 2 and _
+		getCharBehaviourAt(pX, pY + 1, n) < 2 and _
+		getCharBehaviourAt(pX + 1, pY + 1, n) < 2)
 			fsp21MoveSprite(0, 0, 0)
 			fsp21MinUpdateSprites ()
 			if (mapabehaviour(n, 3) = 1)
@@ -325,7 +332,7 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 				doorLeft(n, 1)
 				makeSound(SOUNDBOOM)
 				cambiaMapa(12, 12, maze, 54)
-				pintaTile(mapoffsetx + 12, mapoffsety + 12, 54)
+				pintaTile(12, 12, 54)
 			elseif (mapabehaviour(n, 3) = 6)
 				doorsDown(n)
 				doorUp(n, 0)
@@ -341,19 +348,19 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 	
 	' Interruptor pulsado
 	
-	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 1 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 1 and _
-	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 1 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 1 and n <> secret)
+	if (getCharBehaviourAt(pX, pY, n) = 1 and _
+	getCharBehaviourAt(pX + 1, pY, n) = 1 and _
+	getCharBehaviourAt(pX, pY + 1, n) = 1 and _
+	getCharBehaviourAt(pX + 1, pY + 1, n) = 1 and pX / 2 * 2 = pX and pY / 2 * 2 = pY and n <> secret)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
-		if (getTileAt((mapoffsetx + pX) >> 1, (mapoffsety + pY) >> 1, n) = 22)
+		if (getTileAt((pX) >> 1, (pY) >> 1, n) = 22)
 			cambiaMapa(pX, pY, n, 50)
-			pintaTile(mapoffsetx + pX, mapoffsety + pY, 50)
+			pintaTile(pX + mapoffsetx, pY + mapoffsety, 50)
 		else
 			cambiaMapa(pX, pY, n, 52)
-			pintaTile(mapoffsetx + pX, mapoffsety + pY, 52)
+			pintaTile(pX + mapoffsetx, pY + mapoffsety, 52)
 		end if
 		makeSound(SOUNDSWITCHON)
 		
@@ -361,30 +368,41 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 			mapabehaviour(n, 4) = 4
 			doorUp(n, 0)
 			makeSound(SOUNDSUCCESS)
-			addr = 22528 + 19 + 0
-			poke addr, 80
+		elseif (n = clue)
+			if (pY = 18 and pX = 4)
+				pintaDiagonal()
+			elseif (pY > 17)
+				pintaColumna(pX)
+			else
+				pintaFila(pY)
+			end if
+			if pintaCuadricula()
+				doorRight(n, 0)
+				mapabehaviour(n, 4) = 2
+				makeSound(SOUNDSUCCESS)
+			end if
 		end if
 	end if
 	
 	' Interruptor soltado
 	
-	if ((getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 4 or _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 or _
-	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 or _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4) _
-	and not (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 4 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 4 and _
-	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 4 and _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 4) and n <> secret)
+	if ((getCharBehaviourAt(pX, pY, n) = 4 or _
+	getCharBehaviourAt(pX + 1, pY, n) = 4 or _
+	getCharBehaviourAt(pX, mapoffsety + pY + 1, n) = 4 or _
+	getCharBehaviourAt(pX + 1, pY + 1, n) = 4) _
+	and not (getCharBehaviourAt(pX, pY, n) = 4 and _
+	getCharBehaviourAt(pX + 1, pY, n) = 4 and _
+	getCharBehaviourAt(pX, pY + 1, n) = 4 and _
+	getCharBehaviourAt(pX + 1, pY + 1, n) = 4) and n <> secret)
 		mapabehaviour(n, 4) = mapabehaviour(n, 4) - 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MinUpdateSprites ()
-		if (getTileAt((mapoffsetx + pX - despX) >> 1, (mapoffsety + pY - despY) >> 1, n) = 50)
+		if (getTileAt((pX - despX) >> 1, (pY - despY) >> 1, n) = 50)
 			cambiaMapa(pX - despX, pY - despY, n, 22)
-			pintaTile(mapoffsetx + pX - despX, mapoffsety + pY - despY, 22)
+			pintaTile(pX - despX + mapoffsetx, pY - despY + mapoffsety, 22)
 		else
 			cambiaMapa(pX - despX, pY - despY, n, 51)
-			pintaTile(mapoffsetx + pX - despX, mapoffsety + pY - despY, 51)
+			pintaTile(pX - despX + mapoffsetx, pY - despY + mapoffsety, 51)
 		end if
 		makeSound(SOUNDSWITCHOFF)
 	end if
@@ -395,16 +413,18 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 	
 	' Agujero
 	
-	if (getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY, n) = 5 or _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY, n) = 5 or _
-	getCharBehaviourAt(mapoffsetx + pX, mapoffsety + pY + 1, n) = 5 or _
-	getCharBehaviourAt(mapoffsetx + pX + 1, mapoffsety + pY + 1, n) = 5)
+	if (getCharBehaviourAt(pX, pY, n) = 5 or _
+	getCharBehaviourAt(pX + 1, pY, n) = 5 or _
+	getCharBehaviourAt(pX, pY + 1, n) = 5 or _
+	getCharBehaviourAt(pX + 1, pY + 1, n) = 5)
 		if (n = maze)
 			nPant = ice
 		elseif (n = ice)
 			nPant = inception
+			mapscreenwidth = 12
 		end if
 		makeSound(SOUNDFALL)
+		border 0: CLS
 		initScreen()
 	end if
 	
@@ -440,6 +460,7 @@ sub doorRight(n as uByte, close as uByte)
 		doorTile0 = 46
 		doorTile1 = 47
 	end if
+	
 	cambiaMapa(22, 10, n, doorTile0)
 	cambiaMapa(22, 12, n, doorTile1)
 	pintaTile(mapoffsetx + 11 * 2, mapoffsety + 5 * 2, doorTile0)
@@ -522,6 +543,14 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	mapScreenWidthInChars = TILESIZE * mapscreenwidth
 	' Índice desde el que lee
 	idx = n * screenSize
+	
+	if (n = ice)
+		screenSize = 192
+		mapScreenWidthInChars = 32
+		mapscreenwidth = 16
+	else
+		mapscreenwidth = 12
+	end if
 
 	' Bucle
 	xx = x
@@ -539,7 +568,7 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 	
 	if (n = maze)
 		salida = pintaNumeros(mapoffsetx, mapoffsety)
-		if (mapabehaviour(secret, 4) = 9 and mapabehaviour(chess, 4) = 1 and mapabehaviour(piano, 4) = 24 and mapabehaviour(clue, 4) = 1 and mapabehaviour(maze, 4) = 0)
+		if (mapabehaviour(secret, 4) = 10 and mapabehaviour(chess, 4) = 1 and mapabehaviour(piano, 4) = 24 and mapabehaviour(clue, 4) = 1 and mapabehaviour(maze, 4) = 0)
 			mapabehaviour(maze, 4) = 1
 			mapabehaviour(maze, 2) = 1
 		end if
@@ -550,27 +579,29 @@ sub pintaMapa (x as uByte, y as uByte, n as uInteger)
 		pY = 22
 		makeSound(SOUNDDROP)
 	elseif (n = inception)
-		Poke uInteger 23606, @charsetTextos (0) - 256
+		pokeTextos()
 		print paper 8; ink 8; bright 1; at 3, 8; "-)*-"
 		print paper 8; ink 8; bright 1; at 3, 20; "-,*-"
-		poke uInteger 23606, @charsetGraficos (0) - 256
+		pokeGraficos()
 		makeSound(SOUNDDROP)
 	elseif (n = secret)
 		cAnimacion(2)
 		setMoves(4)
 		pintaMoves()
+	elseif (n = clue)
+		pintaCuadricula()
 	end if
 
 end sub
 
 sub cambiaMapa (x as uInteger, y as uInteger, n as uInteger, t as uByte)
-	mapa (n * mapscreenwidth * mapscreenheight + (mapoffsety / 2 + y / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2) = t
+	mapa (n * 12 * mapscreenheight + ((y - mapoffsety) / 2) * mapscreenwidth + mapoffsetx / 2 + x / 2 - mapoffsetx / 2) = t
 end sub
 
 ' Devuelve el valor del tile en x, y de la pantalla n
 ' x, y = coordenadas de tile
 Function getTileAt (x as uByte, y as uByte, n as uInteger) as uByte
-	return mapa (n * mapscreenwidth * mapscreenheight + y * mapscreenwidth + x)	
+	return mapa (n * 12 * mapscreenheight + y * mapscreenwidth + x)	
 End Function
 
 ' Devuelve el comportamiento del tile en x, y de la pantalla n
@@ -584,3 +615,15 @@ End Function
 Function getCharBehaviourAt (x as uByte, y as uByte, n as uByte) as uByte
    return getTileBehaviourAt (x >> 1, y >> 1, n)
 End Function
+
+sub pokeNormal()
+	poke uInteger 23606, 15616 - 256
+end sub
+
+sub pokeGraficos()
+	poke uInteger 23606, @charsetGraficos (0) - 256
+end sub
+
+sub pokeTextos()
+	Poke uInteger 23606, @charsetTextos (0) - 256
+end sub

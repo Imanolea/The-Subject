@@ -1,0 +1,1 @@
+cmd /k mapcnvZXB.exe mapa2.map 1 1 16 12

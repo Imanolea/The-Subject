@@ -1,0 +1,1 @@
+cmd /k c:\zxb\zxb.exe -t -B -a -O 1 theSubject.bas

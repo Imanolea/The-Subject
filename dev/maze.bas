@@ -70,7 +70,7 @@ function pintaNumeros (mapoffsetx as uByte, mapoffsety as uByte)
 	print paper 8; ink 8; bright 1; at (mapoffsety + 12), (mapoffsetx + 3); chr (CHRSTART + CHRNUMSTART + 10 + n4/10); 
 	print paper 8; ink 8; bright 1; at (mapoffsety + 11), (mapoffsetx + 3); chr (CHRSTART + CHRNUMSTART + 10 + (n4 - n4/10*10));
 	
-	Poke uInteger 23606, @charsetGraficos (0) - 256
+	pokeGraficos()
 	
 	return (orden + 1) 
 	

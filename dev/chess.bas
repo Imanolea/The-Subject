@@ -67,7 +67,7 @@ sub colocaPieza(n as uByte)
 		    makeSound (3)
 			fsp21MoveSprite(0, 0, 0)
 	        fsp21MinUpdateSprites ()
-			pintaTile(mapoffsetx + pX, mapoffsety + pY, getTileAt((mapoffsetx + pX) >> 1, (mapoffsety + pY) >> 1, n))
+			pintaTile(mapoffsetx + pX, mapoffsety + pY, getTileAt((pX) >> 1, (pY) >> 1, n))
 			numR=numR+1
 			pintaNumR()
 			comprobarPos(n)
@@ -78,9 +78,9 @@ end sub
 ' Pinta el número de reinas
 
 sub pintaNumR ()
-	Poke uInteger 23606, @charsetTextos (0) - 256
+	pokeTextos()
 	print paper 0; ink 7; bright 1; at (mapoffsety), (mapoffsetx + 12); chr (CHRSTART + CHRNUMSTART + numR)
-	Poke uInteger 23606, @charsetGraficos (0) - 256
+	pokeGraficos()
 end sub
 
 ' Pinta la pieza en el tablero

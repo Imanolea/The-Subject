@@ -1,1 +1,1 @@
-cmd /k mapcnvZXB.exe mapa.map 3 3 16 12
+cmd /k mapcnvZXB.exe mapa.map 3 3 12 12

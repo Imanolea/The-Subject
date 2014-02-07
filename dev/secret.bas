@@ -58,9 +58,6 @@ end sub
 
 sub actualizaClon (cX as Integer, cY as Integer)
 
-	Dim aCX, aCY as Byte
-
-	aCX = cX
 	if (oX > cX)
 		cX = (antX + movX) / 100
 		antX = antX + movX
@@ -69,7 +66,6 @@ sub actualizaClon (cX as Integer, cY as Integer)
 		antX = antX - movX
 	end if
 	
-	aCY = cY
 	if (oY > cY)
 		cY = (antY + movY) / 100
 		antY = antY + movY
@@ -92,10 +88,10 @@ sub actualizaClon (cX as Integer, cY as Integer)
 end sub
 
 sub check()
-	if (getCharBehaviourAt(mapoffsetx + cPX, mapoffsety + cPY, nPant) = 1 and _
-	getCharBehaviourAt(mapoffsetx + cPX + 1, mapoffsety + cPY, nPant) = 1 and _
-	getCharBehaviourAt(mapoffsetx + cPX, mapoffsety + cPY + 1, nPant) = 1 and _
-	getCharBehaviourAt(mapoffsetx + cPX + 1, mapoffsety + cPY + 1, nPant) = 1)
+	if (getCharBehaviourAt(cPX, cPY, nPant) = 1 and _
+	getCharBehaviourAt(cPX + 1, cPY, nPant) = 1 and _
+	getCharBehaviourAt(cPX, cPY + 1, nPant) = 1 and _
+	getCharBehaviourAt(cPX + 1, cPY + 1, nPant) = 1)
 		mapabehaviour(nPant, 4) = mapabehaviour(nPant, 4) + 1
 		fsp21MoveSprite(0, 0, 0)
 		fsp21MoveSprite(1, 0, 0)
@@ -111,14 +107,15 @@ sub check()
 		fsp21DeactivateSprite(1)
 		doorDown(nPant, 0)
 		makeSound(SOUNDSUCCESS)
+		mapabehaviour(nPant, 4) = 10
 	end if
 	
 end sub
 
 sub pintaMoves()
-	Poke uInteger 23606, @charsetTextos (0) - 256
+	pokeNormal()
 	print paper 0; ink 7; bright 1; at (mapoffsety), (mapoffsetx + 12); chr (CHRSTART + CHRNUMSTART + moves)
-	Poke uInteger 23606, @charsetGraficos (0) - 256
+	pokeGraficos()
 end sub
 
 sub despulsar()
@@ -126,11 +123,10 @@ sub despulsar()
 	fsp21MoveSprite(0, 0, 0)
 	fsp21MoveSprite(1, 0, 0)
 	fsp21MinUpdateSprites ()
-	dim cont as Byte = 0
 	dim i, j as Byte
 	for i = 4 to 8
 		for j = 4 to 8
-			if (getTileBehaviourAt(mapoffsetx/2 + j, mapoffsety/2 + i, secret) = 4)
+			if (getTileBehaviourAt(j, i, secret) = 4)
 				cambiaMapa(j * 2, i * 2, nPant, 22)
 				pintaTile(mapoffsetx + j * 2, mapoffsety + i * 2, 22)
 				makeSound(SOUNDSWITCHOFF)
@@ -152,7 +148,3 @@ end function
 sub setMoves(m as uByte)
 	moves = m
 end sub
-
-function getMoves()
-	return moves
-end function
