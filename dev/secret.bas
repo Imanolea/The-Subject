@@ -113,7 +113,7 @@ sub check()
 end sub
 
 sub pintaMoves()
-	pokeNormal()
+	pokeTextos()
 	print paper 0; ink 7; bright 1; at (mapoffsety), (mapoffsetx + 12); chr (CHRSTART + CHRNUMSTART + moves)
 	pokeGraficos()
 end sub
