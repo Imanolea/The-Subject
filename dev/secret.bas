@@ -1,6 +1,6 @@
 '' secret
 ''
-'' nueve puntos
+'' Nueve puntos
 
 '' Variables
 

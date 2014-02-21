@@ -20,9 +20,6 @@
 #include once "chess.bas"
 #include once "music.bas"
 
-'' Constantes
-
-
 '' Variables
 
 dim isOver as uByte
@@ -41,36 +38,15 @@ isend = 0
 pX = 12
 pY = 12
 
-fsp21DummyContainer ()
-
 menu()
 
 while(NOT isend)
-
-	''poke uInteger 23606, 15616 - 256
-	'' Debug
-	''poke uInteger 23606, @charsetGraficos (0) - 256
 	
 	controlProccess()
 	
 	actualizarJugador()
 	
 	animacion()
-	
-	' Si pulsamos N, dibujamos la anterior pantalla del mapa
-	' Si pulsamos M, dibujamos la siguiente pantalla del mapa
-	
-	if  (in (32766) bAnd 8) = 0 and nPant > 0
-        nPant = nPant - 1
-        initScreen()
-    elseif (in (32766) bAnd 4) = 0 and nPant < 15
-        nPant = nPant + 1
-        initScreen()
-    end if
-        
-    if  (in (32766) bAnd 2) = 0
-        initScreen()
-    end if
 
 	' Esperar
 	asm
