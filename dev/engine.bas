@@ -428,6 +428,17 @@ sub checkPosition(despX as uByte, despY as uByte, n as uByte)
 		initScreen()
 	end if
 	
+	' Pista laberinto
+	
+	if (mapabehaviour(maze, 4) = -2 and n = maze)
+		fsp21MoveSprite(0, 0, 0)
+		fsp21MinUpdateSprites ()
+		doorUp(maze, 1)
+		doorDown(maze, 1)
+		doorLeft(maze, 1)
+		mapabehaviour(maze, 4) = -1
+	end if
+	
 end sub
 
 ' Abrir/Cerrar puertas

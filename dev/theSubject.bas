@@ -123,6 +123,18 @@ sub initScreen ()
 	mapoffsetx = mapabehaviour(nPant, 0)
 	mapoffsety = mapabehaviour(nPant, 1)
 	
+	' Quitar pista
+	
+	if (nPant = maze and mapabehaviour(maze, 4) = -1)
+		cambiaMapa(10, 0, nPant, 18)
+		cambiaMapa(12, 0, nPant, 19)
+		cambiaMapa(10, 22, nPant, 23)
+		cambiaMapa(12, 22, nPant, 45)
+		cambiaMapa(0, 10, nPant, 20)
+		cambiaMapa(0, 12, nPant, 21)
+		mapabehaviour(nPant, 4) = 0
+	end if
+	
 	' Pintar pantalla
 	pintaMapa(mapoffsetx, mapoffsety, nPant)
 	
