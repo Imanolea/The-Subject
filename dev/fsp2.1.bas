@@ -141,6 +141,15 @@ Sub FastCall fsp21UpdateSprites ()
 	End Asm
 End Sub
 
+Sub FastCall fsp21UpdateSpritesn ()
+	' Calls upd_sprites routine in fsp 2.1
+	' Basicly makes changes. Erases sprites, stores background, and repaints them
+	
+	Asm
+		call upd_spritesn
+	End Asm
+End Sub
+
 Sub FastCall fsp21MinUpdateSprites ()
 	' Calls upd_sprites routine in fsp 2.1
 	' Basicly makes changes. Erases sprites, stores background
@@ -407,21 +416,21 @@ fsp21DataPool:
 		;; ---------------------------------------------------------------------------
 		;; rutina pinta_sprites
 		;; ---------------------------------------------------------------------------
-		            
+		
 		;; Esta rutina restaura pinta los chars especificados en la tabla UDG
 		;; En las coordenadas X, Y del sprite
 		            
-		pinta_sprites:
+		pinta_spritesn:
 		
 		            ld      de, datap       ; Apuntamos a la zona de datos
 		
 		            ld      b,  4           ; 4 iteraciones
-		pinta_loop: push    bc
+		pinta_loopn: push    bc
 		
 		            ;; Primero vemos si el sprite está activo
 		            ld      a,  (de)
 		            cp      0
-		            jr      z,  pinta_adv   ; Si no está activo, nos lo saltamos
+		            jr      z,  pinta_advn  ; Si no está activo, nos lo saltamos
 		            inc     de
 		            
 		            ;; Por ahora nos saltamos los flags
@@ -440,7 +449,7 @@ fsp21DataPool:
 		            
 		            ;; DE->UDG. Ahora hay que pintar los cuatro carácteres indexados ahí.
 		            
-		            call    char2scr
+		            call    char2scrn
 		            
 		            ;; DE->BUFFER. Tenemos que saltarnos 32 bytes para acceder
 		            ;; a los atributos del sprite:
@@ -536,6 +545,149 @@ fsp21DataPool:
 		            
 		            ; Ahora DE apunta al principio del siguiente sprite.
 		
+		pinta_nxtn:  pop     bc
+		            djnz    pinta_loopn
+		            
+		            ret
+		pinta_advn:  ld      hl, 50          ; Sumamos 50 a de y seguimos
+		            add     hl, de
+		            ex      de, hl
+		            jp      pinta_nxtn			
+		
+		;; Esta rutina restaura pinta los chars especificados en la tabla UDG
+		;; En las coordenadas X, Y del sprite
+		            
+		pinta_sprites:
+		
+		            ld      de, datap       ; Apuntamos a la zona de datos
+		
+		            ld      b,  4           ; 4 iteraciones
+		pinta_loop: push    bc
+		
+		            ;; Primero vemos si el sprite está activo
+		            ld      a,  (de)
+		            cp      0
+		            jr      z,  pinta_adv   ; Si no está activo, nos lo saltamos
+		            inc     de
+		            
+		            ;; Por ahora nos saltamos los flags
+		            inc     de              ; Ahora DE->X
+		            
+		            ;; Obtenemos las coordenadas X e Y
+		            ld      hl, xpos        ; HL->XPOS
+		            ex      de, hl          ; Cambiamos HL por DE. Ahora DE->XPOS, HL->X
+		            ldi                     ; XPOS = X; DE->YPOS, HL->Y
+		            ldi                     ; YPOS = Y; DE->YPOS+1, HL->Y+1
+		            ex      de, hl          ; Deshacemos el cambio. Ahora DE->Y+1=CX
+		            
+		            ; Nos saltamos CX y CY:
+		            inc     de              ; Ahora DE->CY
+		            inc     de              ; Ahora DE->UDG
+		            
+		            ;; DE->UDG. Ahora hay que pintar los cuatro carácteres indexados ahí.
+		            
+		            call    char2scr
+		            
+		            ;; DE->BUFFER. Tenemos que saltarnos 32 bytes para acceder
+		            ;; a los atributos del sprite:
+		            
+		            ld      hl, 32
+		            add     hl, de
+		            ex      de, hl          ; Ahora DE->ATTRS
+		            
+		            ;; Pintamos los 4 atributos
+		            
+		            ;; reposicionamos las coordenadas xpos e ypos restando 1 a cada una:
+		            
+		            ; xpos --
+		            ld      hl, xpos
+		            dec     (hl)
+		            
+		            ; ypos --
+		            inc     hl
+		            dec     (hl)
+		            
+		            ; Calculamos la dirección de los atributos en HL
+		            call    getatraddr      ; HL->atributos, DE->ATTRS
+		            
+		            ;; Copiamos los cuatro atributos
+		            ;ex      de, hl          ; HL->ATTRS, DE->atributos
+		            ;ldi                     ; Primer carácter
+		            ;ldi                     ; Segundo carácter
+		            ;ex      de, hl          
+		            ;ld      bc, 30
+		            ;add     hl, bc
+		            ;ex      de, hl          ; HL->ATTRS, DE->atributos
+		            ;ldi                     ; Tercer carácter
+		            ;ldi                     ; Cuarto carácter
+		            ;ex      de, hl          ; DE vuelve a apuntar a los datos...
+		            
+		            ;; Efecto dandaresco: sólo imprimimos bright/ink
+		            ;; pero tomamos el paper que haya.
+		            
+		            ;; ---------------------------------------------------------------
+		            
+		            ; 1
+		            ;ld		a, (hl)			; a<- atributo en pantalla
+		            ;and		120				; 01111000 (nos quedamos con PAPER y con BRIGHT)
+		            ;ld		b, a
+		            ;ld		a, (de)
+		            ;and		135				; 10000111 (quitamos el PAPER y el BRIGHT)
+		            ;or		b				; Le pegamos el paper que había
+		            ;ld		(hl), a			; escribimos
+		            ;inc		hl
+		            ;inc		de				; siguiente
+		            
+		            ; 2
+		            ;ld		a, (hl)			; a<- atributo en pantalla
+		            ;and		120				; 01111000 (nos quedamos con PAPER y con BRIGHT)
+		            ;ld		b, a
+		            ;ld		a, (de)
+		            ;and		135				; 10000111 (quitamos el PAPER y el BRIGHT)
+		            ;or		b				; Le pegamos el paper que había
+		            ;ld		(hl), a			; escribimos
+		            ;inc		de
+		            ;ld		bc, 31
+		            ;add		hl, bc			
+		            
+		            ; 3
+		            ;ld		a, (hl)			; a<- atributo en pantalla
+		            ;and		120				; 01111000 (nos quedamos con PAPER y con BRIGHT)
+		            ;ld		b, a
+		            ;ld		a, (de)
+		            ;and		135				; 10000111 (quitamos el PAPER y el BRIGHT)
+		            ;or		b				; Le pegamos el paper que había
+		            ;ld		(hl), a			; escribimos
+		            ;inc		hl
+		            ;inc		de				; siguiente
+		            
+		            ; 4
+		            ;ld		a, (hl)			; a<- atributo en pantalla
+		            ;and		120				; 01111000 (nos quedamos con PAPER y con BRIGHT)
+		            ;ld		b, a
+		            ;ld		a, (de)
+		            ;and		135				; 10000111 (quitamos el PAPER y el BRIGHT)
+		            ;or		b				; Le pegamos el paper que había
+		            ;ld		(hl), a			; escribimos
+		            ;inc		hl
+		            ;inc		de				; siguiente
+		            
+					; SKIP 4 attributes
+		            inc		de
+		            inc 	de
+		            inc 	de
+		            inc 	de
+					
+		            ;; ---------------------------------------------------------------
+		            
+		            ;; Avanzamos DE hasta el siguiente carácter:
+		            inc     de
+		            inc     de
+		            inc     de
+		            inc     de
+		            
+		            ; Ahora DE apunta al principio del siguiente sprite.
+		
 		pinta_nxt:  pop     bc
 		            djnz    pinta_loop
 		            
@@ -592,11 +744,44 @@ fsp21DataPool:
 		
 		upd_sprites:
 					halt
-		            call    borra_sprites
-		            call    init_sprites
-		            call    pinta_sprites
-		            call    upd_coord
-		            ret
+					
+					ld bc, 1900
+		loop_waste: dec bc
+					ld a, b
+					cp 0
+					jp nz, loop_waste
+					ld a, c
+					cp 0
+					jp nz, loop_waste
+					
+					call    borra_sprites
+					call    init_sprites
+					end asm
+					mascara()
+					asm
+					call    pinta_sprites
+					call    upd_coord
+					
+					ret
+		
+		upd_spritesn:
+					halt
+					
+					ld bc, 1900
+		loop_wasten: dec bc
+					ld a, b
+					cp 0
+					jp nz, loop_wasten
+					ld a, c
+					cp 0
+					jp nz, loop_wasten
+					
+					call    borra_sprites
+					call    init_sprites
+					call    pinta_spritesn
+					call    upd_coord
+					
+					ret
 					
 		minupd_sprites:
 					halt
@@ -947,6 +1132,250 @@ fsp21DataPool:
 		            call    getscraddr      ; En HL tenemos la dirección en pantalla
 		            
 		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a         ; Copiamos los 8 bytes del char
+		                        
+		            pop     de              ; Restauramos de
+		            inc     de              ; Siguiente char
+		            
+		            ; xpos++
+		            ld      hl, xpos
+		            inc     (hl)
+		            
+		            ;; Segundo carácter
+		            
+		            ld      a, (de)         ; En A el # del carácter
+		            push    de              ; Nos guardamos DE para luego
+		            call    getcharaddr     ; En HL tenemos la dirección del carácter
+		            ex      de, hl          ; En DE tenemos la dirección del carácter
+		            call    getscraddr      ; En HL tenemos la dirección en pantalla
+		            
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a         ; Copiamos los 8 bytes del char
+		            
+		            pop     de              ; Restauramos de
+		            inc     de              ; Siguiente char
+		            
+		            ; xpos--
+		            ld      hl, xpos
+		            dec     (hl)
+		            
+		            ; ypos ++
+		            inc     hl
+		            inc     (hl)
+		            
+		            ;; Tercer carácter
+		            
+		            ld      a, (de)         ; En A el # del carácter
+		            push    de              ; Nos guardamos DE para luego
+		            call    getcharaddr     ; En HL tenemos la dirección del carácter
+		            ex      de, hl          ; En DE tenemos la dirección del carácter
+		            call    getscraddr      ; En HL tenemos la dirección en pantalla
+		            
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a         ; Copiamos los 8 bytes del char
+		            
+		            pop     de              ; Restauramos de
+		            inc     de              ; Siguiente char
+		        
+		            ; xpos++
+		            ld      hl, xpos
+		            inc     (hl)
+		            
+		            ;; Cuarto carácter
+		            
+		            ld      a, (de)         ; En A el # del carácter
+		            push    de              ; Nos guardamos DE para luego
+		            call    getcharaddr     ; En HL tenemos la dirección del carácter
+		            ex      de, hl          ; En DE tenemos la dirección del carácter
+		            call    getscraddr      ; En HL tenemos la dirección en pantalla
+		            
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a
+		            inc     h
+		            inc     de
+		            ld      a,  (de)
+		            or		(hl)
+		            ld      (hl), a         ; Copiamos los 8 bytes del char
+		            
+		            pop     de              ; Restauramos de
+		            inc     de              ; Fin de los UDG
+		            
+		            ret
+		                
+		;; Esta subrutina devuelve en HL la dirección de memoria de las coordenadas
+		;; XPOS,YPOS. Inspirado por código de Bloodbaz.
+		                
+		getscraddr: ld      a,  (xpos)
+		            and     31
+		            ld      l,  a
+		            ld      a,  (ypos)
+		            ld      c,  a
+		            and     24
+		            add     a,  64
+		            ld      h,  a
+		            ld      a,  c
+		            and     7
+		            rrca
+		            rrca
+		            rrca
+		            or      l
+		            ld      l,  a
+		            
+		            ret
+		
+		;; Esta subrutina devuelve en HL la dirección de memoria del atributo en las
+		;; coordenadas XPOS,YPOS. Jonnathan Cauldwell ?
+		
+		;; Esta rutina apunta los chars en el buffer apuntado por DE a pantalla.
+		                
+		char2scrn:   ;; Primer carácter
+		
+		            ld      a, (de)         ; En A el # del carácter
+		            push    de              ; Nos guardamos DE para luego
+		            call    getcharaddr     ; En HL tenemos la dirección del carácter
+		            ex      de, hl          ; En DE tenemos la dirección del carácter
+		            call    getscraddr      ; En HL tenemos la dirección en pantalla
+		            
+		            ld      a,  (de)
 		            ld      (hl), a
 		            inc     h
 		            inc     de
@@ -1126,27 +1555,7 @@ fsp21DataPool:
 		                
 		;; Esta subrutina devuelve en HL la dirección de memoria de las coordenadas
 		;; XPOS,YPOS. Inspirado por código de Bloodbaz.
-		                
-		getscraddr: ld      a,  (xpos)
-		            and     31
-		            ld      l,  a
-		            ld      a,  (ypos)
-		            ld      c,  a
-		            and     24
-		            add     a,  64
-		            ld      h,  a
-		            ld      a,  c
-		            and     7
-		            rrca
-		            rrca
-		            rrca
-		            or      l
-		            ld      l,  a
-		            
-		            ret
-		
-		;; Esta subrutina devuelve en HL la dirección de memoria del atributo en las
-		;; coordenadas XPOS,YPOS. Jonnathan Cauldwell ?
+
 		            
 		getatraddr: ld      a,  (ypos)      ; Cogemos y
 		            rrca

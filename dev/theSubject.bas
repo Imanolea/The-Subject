@@ -41,6 +41,22 @@ pY = 12
 menu()
 
 while(NOT isend)
+
+	' Si pulsamos N, dibujamos la anterior pantalla del mapa
+	' Si pulsamos M, dibujamos la siguiente pantalla del mapa
+
+	if  (in (32766) bAnd 8) = 0 and nPant > 0
+        nPant = nPant - 1
+        initScreen()
+    elseif (in (32766) bAnd 4) = 0 and nPant < 15
+        nPant = nPant + 1
+        initScreen()
+    end if
+        
+    if  (in (32766) bAnd 2) = 0
+        initScreen()
+    end if
+
 	
 	controlProccess()
 	
@@ -50,7 +66,6 @@ while(NOT isend)
 
 	' Esperar
 	asm
-		halt
 		halt
 		halt
 	end asm
@@ -114,8 +129,13 @@ sub actualizarJugador ()
 		fsp21MoveSprite (1, mapoffsetx + cPX, mapoffsety + cPY)
 	end if
 	
-	' Actualizar Sprites
-	fsp21UpdateSprites ()
+	if (nPant = 1 or nPant = 8)
+		' Actualizar Sprites
+		fsp21UpdateSpritesn ()
+	else
+		fsp21UpdateSprites ()
+	end if
+
 end sub
 
 sub initScreen ()
@@ -172,7 +192,7 @@ end sub
 
 sub menu()
 	
-	print at 10, 11; "A game by"; at 12, 8; "Imanol Barriuso"	
+	print at 10, 11; "A game by"; at 12, 8; "Imanol Barriuso"
 	pause 150
 	cls
 	pause 50
@@ -186,3 +206,15 @@ sub menu()
 	pokeGraficos()
 
 end sub
+
+function getPX()
+	return pX + mapoffsetx
+end function
+
+function getPY()
+	return pY + mapoffsety
+end function
+
+function getNPant()
+	return nPant
+end function

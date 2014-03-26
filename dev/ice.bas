@@ -6,7 +6,8 @@
 
 ' Clon
 
-Dim cPX, cPY as Byte
+Dim cPX as Byte = -2
+Dim cPY as Byte = 0
 Dim cDir as uByte
 
 

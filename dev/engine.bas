@@ -543,7 +543,40 @@ sub pintaTile (x as uByte, y as uInteger, n as uByte)
 	Poke addr + 32, tileset (n, 4): Poke addr + 33, tileset (n, 6)
 end Sub
 
+'sub darColor(x as uByte, y as uInteger)
+'	Dim addr as uInteger
+'	dim n1, n2, n3, n4 as uByte
+'	addr = 22528 + x + (y << 5)
+'	if (pX/2*2=pX and pY/2*2=pY)
+'		n1 = 0
+'		n2 = 2
+'		n3 = 4
+'		n4 = 6
+'	elseif(pX/2*2=pX and pY/2*2<>pY)
+'		n1 = 4
+'		n2 = 6
+'		n3 = 0
+'		n4 = 2
+'	elseif(pX/2*2<>pX and pY/2*2=pY)
+'		n1 = 2
+'		n2 = 0
+'		n3 = 6
+'		n4 = 4
+'	elseif(pX/2*2<>pX and pY/2*2<>pY)
+'		n1 = 6
+'		n2 = 4
+'		n3 = 2
+'		n4 = 0
+'	end if
+'	
+'	Poke addr, tileset (getTileAt((pX) >> 1, (pY) >> 1, nPant), n1): Poke addr + 1, tileset (getTileAt((pX + 1) >> 1, (pY) >> 1, nPant), n2)
+'	Poke addr + 32, tileset (getTileAt((pX) >> 1, (pY + 1) >> 1, nPant), n3): Poke addr + 33, tileset (getTileAt((pX + 1) >> 1, (pY + 1) >> 1, nPant), n4)
+'end sub
+
 sub pintaMapa (x as uByte, y as uByte, n as uInteger)
+
+	dim primera as uByte
+
 	Dim idx as uInteger
 	Dim i as uByte
 	Dim screenSize as uByte
@@ -638,3 +671,58 @@ end sub
 sub pokeTextos()
 	Poke uInteger 23606, @charsetTextos (0) - 256
 end sub
+
+sub mascara()
+	pokeTextos()
+	print over 2; ink 8; paper 8; bright brightAt(pX + mapoffsetx, pY + mapoffsety); at pY + mapoffsety, pX + mapoffsetx; chr (86)
+	print over 2; ink 8; paper 8; bright brightAt(pX + mapoffsetx + 1, pY + mapoffsety); at pY + mapoffsety, pX + mapoffsetx + 1; chr (87)
+	print over 2; ink 8; paper 8; bright brightAt(pX  + mapoffsetx, pY + mapoffsety + 1); at pY + mapoffsety + 1, pX + mapoffsetx; chr (92); chr (93)
+	print over 2; ink 8; paper 8; bright brightAt(pX  + mapoffsetx + 1, pY + mapoffsety + 1); at pY + mapoffsety + 1, pX + mapoffsetx + 1; chr (93)
+	pokeGraficos()
+end sub
+
+sub brightData()
+	datoBrillo:
+	asm
+		brillo: db 0
+	end asm
+	corX:
+	asm
+		x: db 0
+	end asm
+	corY:
+	asm
+		y: db 0
+	end asm
+	asm
+		cogeBrillo:
+		LD A, (y)
+		LD L, A
+		ADD HL, HL
+		ADD HL, HL
+		ADD HL, HL
+		ADD HL, HL
+		ADD HL, HL
+		LD A, (x)
+		ADD A, L
+		LD L, A
+		LD A, $58
+		ADC A, H
+		LD H, A
+		XOR A
+		BIT 6, (HL)
+		JR Z, nobrillo
+		INC A
+		nobrillo: LD (brillo), A
+		RET
+	end asm
+end sub
+
+function brightAt(x as Integer, y as Integer)
+	poke @corX, x
+	poke @corY, y
+	asm
+		call cogeBrillo
+	end asm
+	return peek @datoBrillo
+end function
